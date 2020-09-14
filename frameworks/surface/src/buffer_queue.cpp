@@ -84,7 +84,7 @@ void BufferQueue::InitParam()
 void BufferQueue::UpdatePlaneInfo()
 {
     if (!IsFormatSupported(format_)) {
-        GRAPHIC_LOGW("The format(%{public}u) is not suppored", format);
+        GRAPHIC_LOGW("The format is not suppored");
         return;
     }
     uint8_t planeCount = GetPlaneCount(format_);

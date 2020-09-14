@@ -35,6 +35,7 @@ shared_library("graphic_hals") {
     ]
     public_deps = [
         "//third_party/bounds_checking_function:libsec_shared",
+        "//base/hiviewdfx/frameworks/hilog_lite/featured:hilog_shared",
         "//vendor/huawei/hdf/display/hdi:display_layer",
         "//vendor/huawei/hdf/display/hdi:display_gfx",
         "//vendor/huawei/hdf/display/hdi:display_gralloc",

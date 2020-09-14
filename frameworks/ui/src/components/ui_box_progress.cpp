@@ -47,7 +47,7 @@ void UIBoxProgress::DrawValidRect(const Image* image, const Rect& rect, const Re
                 cordsTmp.SetPosition(area.GetLeft(), area.GetBottom() + radius - header.height);
                 break;
             default:
-                GRAPHIC_LOGE("UIBoxProgress: DrawValidRect direction %d Err!\n", direction_);
+                GRAPHIC_LOGE("UIBoxProgress: DrawValidRect direction Err!\n");
                 break;
         }
         cordsTmp.SetHeight(header.height);
@@ -99,7 +99,7 @@ void UIBoxProgress::DrawRoundCap(const Image* image, const Point& imgPos, const 
             break;
         }
         default:
-            GRAPHIC_LOGE("UIBoxProgress: DrawRoundCap direction %d Err!\n", direction_);
+            GRAPHIC_LOGE("UIBoxProgress: DrawRoundCap direction Err!\n");
             break;
     }
 
@@ -158,7 +158,7 @@ void UIBoxProgress::GetBackgroundParam(Point& startPoint, int16_t& width, int16_
                 startPoint.y += radius;
                 break;
             default:
-                GRAPHIC_LOGE("UIBoxProgress: GetBackgroundParam direction %d Err!\n", direction_);
+                GRAPHIC_LOGE("UIBoxProgress: GetBackgroundParam direction Err!\n");
                 return;
         }
     }
@@ -210,7 +210,7 @@ void UIBoxProgress::DrawForeground(const Rect& invalidatedArea, Rect& coords)
             break;
         }
         default: {
-            GRAPHIC_LOGE("UIBoxProgress: DrawForeground direction %d Err!\n", direction_);
+            GRAPHIC_LOGE("UIBoxProgress: DrawForeground direction Err!\n");
             return;
         }
     }

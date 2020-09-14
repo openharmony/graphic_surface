@@ -240,9 +240,9 @@ static constexpr const char* DEFAULT_SCREENSHOT_PATH = "user/log/screenshot.bin"
 static constexpr const char* DEFAULT_DUMP_DOM_TREE_PATH = "user/log/dump_dom_tree.json";
 #else
 /* Default file path for screenshots */
-static constexpr const char* DEFAULT_SCREENSHOT_PATH = "/data/screenshot.bin";
+static constexpr const char* DEFAULT_SCREENSHOT_PATH = "/storage/screenshot.bin";
 /* Default file path for DOM tree logs */
-static constexpr const char* DEFAULT_DUMP_DOM_TREE_PATH = "/data/dump_dom_tree.json";
+static constexpr const char* DEFAULT_DUMP_DOM_TREE_PATH = "/storage/dump_dom_tree.json";
 /* Default file path for font */
 static constexpr const char* VECTOR_FONT_DIR = "/user/data/";
 #endif

@@ -36,6 +36,7 @@ shared_library("ims") {
     ]
     public_deps = [
         "//third_party/bounds_checking_function:libsec_shared",
+        "//base/hiviewdfx/frameworks/hilog_lite/featured:hilog_shared",
         "//foundation/graphic/lite/utils:litegraphicutils",
         "//vendor/huawei/hdf/input/hdi:hdi_input",
         "//drivers/hdf/lite/adapter/osal/posix:hdf_posix_osal",
