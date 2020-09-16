@@ -36,8 +36,8 @@ LiteWindow::LiteWindow(const LiteWinConfig& config)
 LiteWindow::~LiteWindow()
 {
     if (needUnregister_) {
-        GRAPHIC_LOGI("UnRegisteIpcCallback");
-        UnRegisteIpcCallback(sid_);
+        GRAPHIC_LOGI("UnregisterIpcCallback");
+        UnregisterIpcCallback(sid_);
     }
 
     if (surface_) {

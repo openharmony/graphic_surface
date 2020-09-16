@@ -132,7 +132,7 @@ void LiteWMRequestor::OnBufferAvailable()
             }
             surface_->ReleaseBuffer(buffer);
         }
-        UnRegisteIpcCallback(sid_);
+        UnregisterIpcCallback(sid_);
         delete surface_;
         surface_ = nullptr;
     }
@@ -155,9 +155,9 @@ void LiteWMRequestor::Screenshot()
     surface_->SetUsage(1);
     surface_->RegisterConsumerListener(*this);
 
-    int32_t ret = RegisteIpcCallback(SurfaceRequestHandler, 0, IPC_WAIT_FOREVER, &sid_, surface_);
+    int32_t ret = RegisterIpcCallback(SurfaceRequestHandler, 0, IPC_WAIT_FOREVER, &sid_, surface_);
     if (ret != LITEIPC_OK) {
-        GRAPHIC_LOGE("CalculatorGetAnonymousFunc, RegisteIpcCallback failed.");
+        GRAPHIC_LOGE("CalculatorGetAnonymousFunc, RegisterIpcCallback failed.");
         delete surface_;
         surface_ = nullptr;
         return;

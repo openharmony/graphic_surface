@@ -92,10 +92,10 @@ void LiteWMS::GetSurface(IpcIo *req, IpcIo *reply)
         return;
     }
     SvcIdentity svc;
-    int32_t ret = RegisteIpcCallback(SurfaceRequestHandler, 0, IPC_WAIT_FOREVER, &svc, window);
+    int32_t ret = RegisterIpcCallback(SurfaceRequestHandler, 0, IPC_WAIT_FOREVER, &svc, window);
     IpcIoPushInt32(reply, ret);
     if (ret != LITEIPC_OK) {
-        GRAPHIC_LOGE("RegisteIpcCallback failed.");
+        GRAPHIC_LOGE("RegisterIpcCallback failed.");
         return;
     }
     window->SetSid(svc);
