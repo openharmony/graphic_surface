@@ -15,7 +15,7 @@
 
 #include "common/image.h"
 #include "components/root_view.h"
-#include "components/ui_radiobutton.h"
+#include "components/ui_radio_button.h"
 #include "components/ui_view_group.h"
 #include "default_resource/radio_button_res.h"
 #include "draw/draw_image.h"

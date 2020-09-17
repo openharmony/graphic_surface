@@ -45,7 +45,7 @@ shared_library("ui") {
         "src/common/graphic_startup.cpp",
         "src/components/ui_checkbox.cpp",
         "src/components/ui_label_button.cpp",
-        "src/components/ui_radiobutton.cpp",
+        "src/components/ui_radio_button.cpp",
         "src/components/ui_repeat_button.cpp",
         "src/components/ui_toggle_button.cpp",
         "src/components/ui_canvas.cpp",

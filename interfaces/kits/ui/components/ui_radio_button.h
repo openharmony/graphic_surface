@@ -27,7 +27,7 @@
  */
 
 /**
- * @file ui_radiobutton.h
+ * @file ui_radio_button.h
  *
  * @brief Defines the attributes and common functions of a radio button.
  *

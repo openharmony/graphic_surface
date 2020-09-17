@@ -40,7 +40,7 @@ add_library(ui STATIC
  "${UI_DIR}/src/components/ui_button.cpp"
  "${UI_DIR}/src/components/ui_checkbox.cpp"
  "${UI_DIR}/src/components/ui_label_button.cpp"
- "${UI_DIR}/src/components/ui_radiobutton.cpp"
+ "${UI_DIR}/src/components/ui_radio_button.cpp"
  "${UI_DIR}/src/components/ui_repeat_button.cpp"
  "${UI_DIR}/src/components/ui_toggle_button.cpp"
  "${UI_DIR}/src/components/ui_canvas.cpp"
