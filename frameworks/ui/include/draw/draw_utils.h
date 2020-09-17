@@ -96,6 +96,8 @@ struct TriangleTransformDataInfo {
     Point p1;
     Point p2;
     Point p3;
+    bool isRightPart;
+    bool ignoreJunctionPoint;
 };
 
 struct TriangleScanInfo {
@@ -111,6 +113,9 @@ struct TriangleScanInfo {
     uint8_t pixelSize;
     const int32_t srcLineWidth;
     const TransformDataInfo& info;
+    const Rect& mask;
+    bool isRightPart;
+    bool ignoreJunctionPoint;
 };
 
 struct TrianglePartInfo {
@@ -123,6 +128,8 @@ struct TrianglePartInfo {
     int16_t yMax;
     const TransformDataInfo& info;
     const ColorType& color;
+    bool isRightPart;
+    bool ignoreJunctionPoint;
 };
 
 enum {
@@ -154,6 +161,9 @@ public:
     void DrawLetter(const LabelLetterInfo& letterInfo) const;
 
     void DrawImage(const Rect& area, const Rect& mask, const uint8_t* image, OpacityType opa, uint8_t pxByteSize) const;
+
+    static void GetXAxisErrForJunctionLine(bool ignoreJunctionPoint, bool isRightPart, int32_t& xMinErr,
+        int32_t& xMaxErr);
 
     static void GetTransformInitState(const TransformMap& transMap, const Point& position,
         const Rect& trans, TransformInitState& init);

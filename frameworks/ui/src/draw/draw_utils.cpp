@@ -19,6 +19,7 @@
 #include "font/ui_font.h"
 #include "font/ui_font_header.h"
 #include "graphic_log.h"
+#include "graphic_math.h"
 #include "securec.h"
 
 #if ENABLE_WINDOW && ENABLE_HARDWARE_ACCELERATION
@@ -568,6 +569,22 @@ void DrawUtils::BlendWithSoftWare(ScreenBufferType* dest, const uint8_t* src, ui
     }
 }
 
+void DrawUtils::GetXAxisErrForJunctionLine(bool ignoreJunctionPoint,
+                                           bool isRightPart,
+                                           int32_t& xMinErr,
+                                           int32_t& xMaxErr)
+{
+    xMinErr = 0;
+    xMaxErr = 0;
+    if (ignoreJunctionPoint) {
+        if (isRightPart) {
+            xMinErr = 1;
+        } else {
+            xMaxErr = -1;
+        }
+    }
+}
+
 void DrawUtils::GetTransformInitState(const TransformMap& transMap, const Point& position,
     const Rect& trans, TransformInitState& init)
 {
@@ -685,9 +702,14 @@ inline void DrawUtils::StepToNextLine(TriangleEdge& edge1, TriangleEdge& edge2)
 
 void DrawUtils::DrawTriangleAlphaBilinear(const TriangleScanInfo& in)
 {
+    int32_t maskLeft = in.mask.GetLeft();
+    int32_t maskRight = in.mask.GetRight();
     for (int16_t y = in.yMin; y <= in.yMax; y++) {
-        int16_t xMin = static_cast<int16_t>(in.edge1.curX);
-        int16_t xMax = static_cast<int16_t>(in.edge2.curX);
+        int16_t xMin = MATH_MAX(static_cast<int16_t>(in.edge1.curX), maskLeft);
+        int16_t xMax = MATH_MIN(static_cast<int16_t>(in.edge2.curX), maskRight);
+        int16_t diffX = (xMin - static_cast<int16_t>(in.edge1.curX));
+        in.init.verticalU += in.init.duHorizon * diffX;
+        in.init.verticalV += in.init.dvHorizon * diffX;
 #if ENABLE_WINDOW
         ScreenBufferType* screenBuffer = in.screenBuffer + y * in.screenBufferWidth + xMin;
 #else
@@ -883,9 +905,18 @@ void DrawUtils::DrawTriangleTrueColorBilinear888(const TriangleScanInfo& in)
 
 void DrawUtils::DrawTriangleTrueColorBilinear8888(const TriangleScanInfo& in)
 {
+    int16_t maskLeft = in.mask.GetLeft();
+    int16_t maskRight = in.mask.GetRight();
+    int32_t xMinErr = 0;
+    int32_t xMaxErr = 0;
+    GetXAxisErrForJunctionLine(in.ignoreJunctionPoint, in.isRightPart, xMinErr, xMaxErr);
     for (int16_t y = in.yMin; y <= in.yMax; y++) {
-        int16_t xMin = static_cast<int16_t>(in.edge1.curX);
-        int16_t xMax = static_cast<int16_t>(in.edge2.curX);
+        int16_t xMin = MATH_MAX(static_cast<int16_t>(in.edge1.curX + xMinErr), maskLeft);
+        int16_t xMax = MATH_MIN(static_cast<int16_t>(in.edge2.curX + xMaxErr), maskRight);
+        int16_t diffX = (xMin - static_cast<int16_t>(in.edge1.curX));
+        in.init.verticalU += in.init.duHorizon * diffX;
+        in.init.verticalV += in.init.dvHorizon * diffX;
+
 #if ENABLE_WINDOW
         ScreenBufferType* screenBuffer = in.screenBuffer + y * in.screenBufferWidth + xMin;
 #else
@@ -963,9 +994,14 @@ void DrawUtils::DrawTriangleTrueColorBilinear8888(const TriangleScanInfo& in)
 
 void DrawUtils::DrawTriangleTrueColorNearest(const TriangleScanInfo& in)
 {
+    int16_t maskLeft = in.mask.GetLeft();
+    int16_t maskRight = in.mask.GetRight();
+    int32_t xMinErr = 0;
+    int32_t xMaxErr = 0;
+    GetXAxisErrForJunctionLine(in.ignoreJunctionPoint, in.isRightPart, xMinErr, xMaxErr);
     for (int16_t y = in.yMin; y <= in.yMax; y++) {
-        int16_t xMin = static_cast<int16_t>(in.edge1.curX);
-        int16_t xMax = static_cast<int16_t>(in.edge2.curX);
+        int16_t xMin = MATH_MAX(static_cast<int16_t>(in.edge1.curX + xMinErr), maskLeft);
+        int16_t xMax = MATH_MIN(static_cast<int16_t>(in.edge2.curX + xMaxErr), maskRight);
 #if ENABLE_WINDOW
         ScreenBufferType* screenBuffer = in.screenBuffer + y * in.screenBufferWidth + xMin;
 #else
@@ -1052,7 +1088,7 @@ void DrawUtils::DrawTriangleTransformPart(const TrianglePartInfo& part)
     const int32_t srcLineWidth = part.info.header.width * pixelSize;
     TriangleScanInfo input {
         part.yMin, part.yMax, part.edge1, part.edge2, screenBuffer, bufferRect, part.color, init,
-        screenBufferWidth, pixelSize, srcLineWidth, part.info
+        screenBufferWidth, pixelSize, srcLineWidth, part.info, part.mask, part.isRightPart, part.ignoreJunctionPoint
     };
     fuc(input);
 }
@@ -1068,10 +1104,14 @@ void DrawUtils::DrawTriangleTransform(const Rect& mask, const Point& position,
     TriangleEdge edge1;
     TriangleEdge edge2;
     TrianglePartInfo part {
-        mask, transMap, position, edge1, edge2, yMin, yMax, triangleInfo.info, color
+        mask, transMap, position, edge1, edge2, yMin, yMax, triangleInfo.info, color,
+        triangleInfo.isRightPart,
+        triangleInfo.ignoreJunctionPoint,
     };
 
+    uint8_t yErr = 1;
     if (triangleInfo.p2.y == triangleInfo.p1.y) {
+        yErr = 0;
         goto BottomHalf;
     }
     if (p3IsInRight) {
@@ -1108,7 +1148,7 @@ BottomHalf:
         }
     }
 
-    part.yMin = MATH_MAX(mask.GetTop(), triangleInfo.p2.y);
+    part.yMin = MATH_MAX(mask.GetTop(), triangleInfo.p2.y + yErr);
     part.yMax = MATH_MIN(mask.GetBottom(), triangleInfo.p3.y);
     part.edge1 = edge1;
     part.edge2 = edge2;
@@ -1141,7 +1181,10 @@ void DrawUtils::DrawTransform(const Rect& mask, const Point& position,
     Point p3;
     p3.x = polygon[2].x_ + position.x; // 2:third point
     p3.y = polygon[2].y_ + position.y; // 2:third point
+    triangleInfo.isRightPart = ((p1.y - p3.y) * p2.x + (p3.x - p1.x) * p2.y + p1.x * p3.y - p3.x * p1.y) < 0;
+    triangleInfo.isRightPart = (p1.y < p3.y) ? triangleInfo.isRightPart : !triangleInfo.isRightPart;
     DrawTriangle::SortVertexs(p1, p2, p3);
+    triangleInfo.ignoreJunctionPoint = false;
     triangleInfo.p1 = p1;
     triangleInfo.p2 = p2;
     triangleInfo.p3 = p3;
@@ -1149,6 +1192,8 @@ void DrawUtils::DrawTransform(const Rect& mask, const Point& position,
         DrawTriangleTransform(mask, position, color, transMap, triangleInfo);
     }
 
+    triangleInfo.ignoreJunctionPoint = true;
+    triangleInfo.isRightPart = !triangleInfo.isRightPart;
     p1.x = polygon[0].x_ + position.x; // 0:first point
     p1.y = polygon[0].y_ + position.y; // 0:first point
     p3.x = polygon[2].x_ + position.x; // 2:third point
