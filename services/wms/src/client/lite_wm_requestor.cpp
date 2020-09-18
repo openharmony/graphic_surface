@@ -66,6 +66,30 @@ int LiteWMRequestor::Callback(void* owner, int code, IpcIo* reply)
     return 0;
 }
 
+int32_t LiteWMRequestor::WmsMsgHandler(const IpcContext* context, void* ipcMsg, IpcIo* io, void* arg)
+{
+    // It's not used yet
+    return 0;
+}
+
+void LiteWMRequestor::ClientRegister()
+{
+    IpcIo io;
+    uint8_t tmpData[DEFAULT_IPC_SIZE];
+    IpcIoInit(&io, tmpData, DEFAULT_IPC_SIZE, 1);
+
+    SvcIdentity svc;
+    if (RegisterIpcCallback(WmsMsgHandler, 0, IPC_WAIT_FOREVER, &svc, NULL) != LITEIPC_OK) {
+        GRAPHIC_LOGE("RegisterIpcCallback failed.");
+        return;
+    }
+    IpcIoPushSvc(&io, &svc);
+    uint32_t ret = proxy_->Invoke(proxy_, LiteWMS_ClientRegister, &io, NULL, Callback);
+    if (ret != 0) {
+        GRAPHIC_LOGE("ClientRegister failed, ret=%d", ret);
+    }
+}
+
 LiteWinRequestor* LiteWMRequestor::CreateWindow(const LiteWinConfig& config)
 {
     IpcIo io;

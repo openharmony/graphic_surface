@@ -48,7 +48,8 @@ typedef enum {
     LiteWMS_CreateWindow,
     LiteWMS_RemoveWindow,
     LiteWMS_GetEventData,
-    LiteWMS_Screenshot
+    LiteWMS_Screenshot,
+    LiteWMS_ClientRegister
 } LiteWMSCall;
 
 struct CallBackPara {
@@ -58,5 +59,6 @@ struct CallBackPara {
 
 const char SERVICE_NAME[] = "WMS";
 const int INVALID_WINDOW_ID = -1;
+const int INVALID_PID = -1;
 }
 #endif

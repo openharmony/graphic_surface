@@ -31,13 +31,14 @@ public:
         static LiteWMRequestor requestor;
         return &requestor;
     }
-    static int Callback(void* owner, int code, IpcIo *reply);
 
-    static int32_t WMRequestHandler(void *ipcMsg, IpcIo *data, void *arg);
+    static int Callback(void* owner, int code, IpcIo* reply);
+    static int32_t WmsMsgHandler(const IpcContext* context, void* ipcMsg, IpcIo* io, void* arg);
+    static int32_t SurfaceRequestHandler(const IpcContext* context, void* ipcMsg, IpcIo* io, void* arg);
 
-    static int SurfaceRequestHandler(const IpcContext* context, void *ipcMsg, IpcIo *io, void *arg);
     virtual void OnBufferAvailable() override;
 
+    void ClientRegister();
     LiteWinRequestor* CreateWindow(const LiteWinConfig& config);
     void RemoveWindow(int32_t id);
     void GetEventData(DeviceData* data);

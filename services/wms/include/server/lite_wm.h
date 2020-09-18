@@ -69,7 +69,6 @@ public:
     void Resize(int32_t id, int16_t width, int16_t height);
     void UpdateWindow(int32_t id);
 
-    void UpdateWindow(const LiteWindow* window, const Rect& rect);
     void UpdateWindowRegion(const LiteWindow* window, const Rect& rect);
     void CalculateUpdateRegion(const ListNode<LiteWindow*>* winNode, int16_t x1, int16_t y1, int16_t x2, int16_t y2);
     void ProcessUpdates();
@@ -77,7 +76,7 @@ public:
     void DrawBackground(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
     void AddUpdateRegion(const Rect& rect);
 
-    LiteWindow* CreateWindow(const LiteWinConfig& config);
+    LiteWindow* CreateWindow(const LiteWinConfig& config, pid_t pid);
     void RemoveWindow(int32_t id);
     LiteWindow* GetWindowById(int32_t id);
     ListNode<LiteWindow*>* GetWindowNodeById(int32_t id);
@@ -87,6 +86,8 @@ public:
 
     void Screenshot();
     void OnScreenshot(Surface* surface);
+
+    void OnClientDeathNotify(pid_t pid);
 
     Point GetMousePosition()
     {

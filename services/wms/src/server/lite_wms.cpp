@@ -21,7 +21,7 @@
 #include "surface_impl.h"
 
 namespace OHOS {
-void LiteWMS::WMSRequestHandle(int funcId, void *origin, IpcIo *req, IpcIo *reply)
+void LiteWMS::WMSRequestHandle(int funcId, void* origin, IpcIo* req, IpcIo* reply)
 {
     switch (funcId) {
         case LiteWMS_GetSurface:
@@ -49,7 +49,7 @@ void LiteWMS::WMSRequestHandle(int funcId, void *origin, IpcIo *req, IpcIo *repl
             LiteWMS::GetInstance()->Update(req, reply);
             break;
         case LiteWMS_CreateWindow:
-            LiteWMS::GetInstance()->CreateWindow(req, reply);
+            LiteWMS::GetInstance()->CreateWindow(origin, req, reply);
             break;
         case LiteWMS_RemoveWindow:
             LiteWMS::GetInstance()->RemoveWindow(req, reply);
@@ -60,13 +60,16 @@ void LiteWMS::WMSRequestHandle(int funcId, void *origin, IpcIo *req, IpcIo *repl
         case LiteWMS_Screenshot:
             LiteWMS::GetInstance()->Screenshot(req, reply);
             break;
+        case LiteWMS_ClientRegister:
+            LiteWMS::GetInstance()->ClientRegister(origin, req, reply);
+            break;
         default:
             GRAPHIC_LOGW("code not support:%d!", funcId);
             break;
     }
 }
 
-int LiteWMS::SurfaceRequestHandler(const IpcContext* context, void *ipcMsg, IpcIo *io, void *arg)
+int32_t LiteWMS::SurfaceRequestHandler(const IpcContext* context, void* ipcMsg, IpcIo* io, void* arg)
 {
     uint32_t code;
     (void)GetCode(ipcMsg, &code);
@@ -82,7 +85,7 @@ int LiteWMS::SurfaceRequestHandler(const IpcContext* context, void *ipcMsg, IpcI
     return 0;
 }
 
-void LiteWMS::GetSurface(IpcIo *req, IpcIo *reply)
+void LiteWMS::GetSurface(IpcIo* req, IpcIo* reply)
 {
     int32_t id = IpcIoPopInt32(req);
     GRAPHIC_LOGI("GetSurface,id=%d", id);
@@ -102,35 +105,35 @@ void LiteWMS::GetSurface(IpcIo *req, IpcIo *reply)
     IpcIoPushSvc(reply, &svc);
 }
 
-void LiteWMS::Show(IpcIo *req, IpcIo *reply)
+void LiteWMS::Show(IpcIo* req, IpcIo* reply)
 {
     GRAPHIC_LOGI("Show");
     int32_t id = IpcIoPopInt32(req);
     LiteWM::GetInstance()->Show(id);
 }
 
-void LiteWMS::Hide(IpcIo *req, IpcIo *reply)
+void LiteWMS::Hide(IpcIo* req, IpcIo* reply)
 {
     GRAPHIC_LOGI("Hide");
     int32_t id = IpcIoPopInt32(req);
     LiteWM::GetInstance()->Hide(id);
 }
 
-void LiteWMS::RaiseToTop(IpcIo *req, IpcIo *reply)
+void LiteWMS::RaiseToTop(IpcIo* req, IpcIo* reply)
 {
     GRAPHIC_LOGI("RaiseToTop");
     int32_t id = IpcIoPopInt32(req);
     LiteWM::GetInstance()->RaiseToTop(id);
 }
 
-void LiteWMS::LowerToBottom(IpcIo *req, IpcIo *reply)
+void LiteWMS::LowerToBottom(IpcIo* req, IpcIo* reply)
 {
     GRAPHIC_LOGI("LowerToBottom");
     int32_t id = IpcIoPopInt32(req);
     LiteWM::GetInstance()->LowerToBottom(id);
 }
 
-void LiteWMS::MoveTo(IpcIo *req, IpcIo *reply)
+void LiteWMS::MoveTo(IpcIo* req, IpcIo* reply)
 {
     GRAPHIC_LOGI("MoveTo");
     int32_t id = IpcIoPopInt32(req);
@@ -139,7 +142,7 @@ void LiteWMS::MoveTo(IpcIo *req, IpcIo *reply)
     LiteWM::GetInstance()->MoveTo(id, x, y);
 }
 
-void LiteWMS::Resize(IpcIo *req, IpcIo *reply)
+void LiteWMS::Resize(IpcIo* req, IpcIo* reply)
 {
     GRAPHIC_LOGI("Resize");
     int32_t id = IpcIoPopInt32(req);
@@ -148,20 +151,21 @@ void LiteWMS::Resize(IpcIo *req, IpcIo *reply)
     LiteWM::GetInstance()->Resize(id, width, height);
 }
 
-void LiteWMS::Update(IpcIo *req, IpcIo *reply)
+void LiteWMS::Update(IpcIo* req, IpcIo* reply)
 {
     GRAPHIC_LOGI("Update");
     int32_t id = IpcIoPopInt32(req);
     LiteWM::GetInstance()->UpdateWindow(id);
 }
 
-void LiteWMS::CreateWindow(IpcIo *req, IpcIo *reply)
+void LiteWMS::CreateWindow(void* origin, IpcIo* req, IpcIo* reply)
 {
     GRAPHIC_LOGI("CreateWindow");
     uint32_t size;
     LiteWinConfig* config = static_cast<LiteWinConfig*>(IpcIoPopFlatObj(req, &size));
     if (config != nullptr) {
-        LiteWindow* window = LiteWM::GetInstance()->CreateWindow(*config);
+        pid_t pid = GetCallingPid(origin);
+        LiteWindow* window = LiteWM::GetInstance()->CreateWindow(*config, pid);
         if (window != nullptr) {
             IpcIoPushInt32(reply, window->GetWindowId());
             return;
@@ -170,23 +174,44 @@ void LiteWMS::CreateWindow(IpcIo *req, IpcIo *reply)
     IpcIoPushInt32(reply, INVALID_WINDOW_ID);
 }
 
-void LiteWMS::RemoveWindow(IpcIo *req, IpcIo *reply)
+void LiteWMS::RemoveWindow(IpcIo* req, IpcIo* reply)
 {
     GRAPHIC_LOGI("RemoveWindow");
     int32_t id = IpcIoPopInt32(req);
     LiteWM::GetInstance()->RemoveWindow(id);
 }
 
-void LiteWMS::GetEventData(IpcIo *req, IpcIo *reply)
+void LiteWMS::GetEventData(IpcIo* req, IpcIo* reply)
 {
     DeviceData data;
     LiteWM::GetInstance()->GetEventData(&data);
     IpcIoPushFlatObj(reply, &data, sizeof(DeviceData));
 }
 
-void LiteWMS::Screenshot(IpcIo *req, IpcIo *reply)
+void LiteWMS::Screenshot(IpcIo* req, IpcIo* reply)
 {
     Surface* surface = SurfaceImpl::GenericSurfaceByIpcIo(*req);
     LiteWM::GetInstance()->OnScreenshot(surface);
+}
+
+void LiteWMS::ClientRegister(void* origin, IpcIo* req, IpcIo* reply)
+{
+    pid_t pid = GetCallingPid(origin);
+    SvcIdentity* sid = IpcIoPopSvc(req);
+    pid_t* ppid = new pid_t(pid);
+    uint32_t cbId = -1;
+    if (RegisterDeathCallback(NULL, *sid, DeathCallBack, ppid, &cbId) != LITEIPC_OK) {
+        GRAPHIC_LOGE("RegisterDeathCallback failed!");
+    }
+}
+
+int32_t LiteWMS::DeathCallBack(const IpcContext* context, void* ipcMsg, IpcIo* data, void* arg)
+{
+    if (arg != nullptr) {
+        pid_t* ppid = static_cast<pid_t*>(arg);
+        LiteWM::GetInstance()->OnClientDeathNotify(*ppid);
+        delete ppid;
+    }
+    return 0;
 }
 }
