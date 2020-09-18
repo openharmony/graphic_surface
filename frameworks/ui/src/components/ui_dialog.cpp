@@ -121,9 +121,9 @@ void UIDialog::MeasureTitle()
         return;
     }
     title_->SetLineBreakMode(UILabel::LINE_BREAK_ADAPT);
-    title_->SetFont(DEFAULT_FONT, TITLE_LARGE_FONT_SIZE);
+    title_->SetFont(DEFAULT_VECTOR_FONT_FILENAME, TITLE_LARGE_FONT_SIZE);
     if (title_->GetTextWidth() > widthMax_) {
-        title_->SetFont(DEFAULT_FONT, TITLE_SMALL_FONT_SIZE);
+        title_->SetFont(DEFAULT_VECTOR_FONT_FILENAME, TITLE_SMALL_FONT_SIZE);
     }
     title_->SetWidth(title_->GetTextWidth());
     title_->SetHeight(title_->GetTextHeight());
@@ -154,7 +154,7 @@ void UIDialog::MeasureText()
     if (text_ == nullptr) {
         return;
     }
-    text_->SetFont(DEFAULT_FONT, TEXT_FONT_SIZE);
+    text_->SetFont(DEFAULT_VECTOR_FONT_FILENAME, TEXT_FONT_SIZE);
     text_->SetAlign(UITextLanguageAlignment::TEXT_ALIGNMENT_CENTER);
     dialogLayer_.Add(text_);
 
@@ -231,7 +231,7 @@ void UIDialog::AddButton(DialogButtonType buttonType,
     button->SetDraggable(true);
     button->SetText(text);
     button->SetOnClickListener(listener);
-    button->SetFont(DEFAULT_FONT, BUTTON_FONT_SIZE);
+    button->SetFont(DEFAULT_VECTOR_FONT_FILENAME, BUTTON_FONT_SIZE);
 
     button->SetTextColor(Color::White());
     button->SetStyle(STYLE_BACKGROUND_COLOR, Color::Gray().full);

@@ -41,6 +41,7 @@ shared_library("wms_client") {
         "//foundation/graphic/lite/frameworks/ui/src/adapter/OHOS",
         "//foundation/graphic/lite/frameworks/surface/include",
         "//foundation/graphic/lite/hals/include",
+        "//foundation/graphic/lite/utils/include",
         "//kernel/liteos_a/kernel/include/",
         "//kernel/liteos_a/kernel/common",
         "//utils/native/lite/include",

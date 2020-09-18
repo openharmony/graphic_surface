@@ -499,15 +499,12 @@ void DrawUtils::BlendWithSoftWare(ScreenBufferType* dest, const uint8_t* src, ui
     ColorType color;
 #if COLOR_DEPTH == 32 /* halbuffer is RGB888 */
     if (pxByteSize == static_cast<uint8_t>(PixelType::IMG_RGB888)) {
-        if (opa == OPA_OPAQUE) {
-            /* hal buffer is RGB888, image buffer RGB888, just memcpy */
-            if (memcpy_s(dest, length * sizeof(Color24), src, length * sizeof(Color24)) != EOK) {
-                return;
-            }
-        } else {
-            Color24* temp = reinterpret_cast<Color24*>(const_cast<uint8_t*>(src));
-            for (uint32_t col = 0; col < length; col++, temp++) {
-                color = Color::GetColorFromRGB(temp->red, temp->green, temp->blue);
+        Color24* temp = reinterpret_cast<Color24*>(const_cast<uint8_t*>(src));
+        for (uint32_t col = 0; col < length; col++, temp++) {
+            color = Color::GetColorFromRGB(temp->red, temp->green, temp->blue);
+            if (opa == OPA_OPAQUE) {
+                WRITE_BUFFER(dest[col], color);
+            } else {
                 WRITE_BUFFER_WITH_ALPHA(dest[col], color, opa);
             }
         }
@@ -559,7 +556,7 @@ void DrawUtils::BlendWithSoftWare(ScreenBufferType* dest, const uint8_t* src, ui
                 WRITE_BUFFER(dest[col], *temp);
             } else {
                 OpacityType opaResult = opa;
-                color = Color::GetColorFromRGB(temp->red, temp->green, temp->blue);
+                color = Color::GetColorFromRGBA(temp->red, temp->green, temp->blue, temp->alpha);
                 opaResult = static_cast<uint32_t>(static_cast<uint32_t>(temp->alpha) * opaResult) >> 8;
                 WRITE_BUFFER_WITH_ALPHA(dest[col], color, opaResult);
             }
@@ -707,7 +704,7 @@ void DrawUtils::DrawTriangleAlphaBilinear(const TriangleScanInfo& in)
     for (int16_t y = in.yMin; y <= in.yMax; y++) {
         int16_t xMin = MATH_MAX(static_cast<int16_t>(in.edge1.curX), maskLeft);
         int16_t xMax = MATH_MIN(static_cast<int16_t>(in.edge2.curX), maskRight);
-        int16_t diffX = (xMin - static_cast<int16_t>(in.edge1.curX));
+        int16_t diffX = (xMin - static_cast<int32_t>(in.edge1.curX));
         in.init.verticalU += in.init.duHorizon * diffX;
         in.init.verticalV += in.init.dvHorizon * diffX;
 #if ENABLE_WINDOW
@@ -913,7 +910,7 @@ void DrawUtils::DrawTriangleTrueColorBilinear8888(const TriangleScanInfo& in)
     for (int16_t y = in.yMin; y <= in.yMax; y++) {
         int16_t xMin = MATH_MAX(static_cast<int16_t>(in.edge1.curX + xMinErr), maskLeft);
         int16_t xMax = MATH_MIN(static_cast<int16_t>(in.edge2.curX + xMaxErr), maskRight);
-        int16_t diffX = (xMin - static_cast<int16_t>(in.edge1.curX));
+        int16_t diffX = (xMin - static_cast<int32_t>(in.edge1.curX));
         in.init.verticalU += in.init.duHorizon * diffX;
         in.init.verticalV += in.init.dvHorizon * diffX;
 

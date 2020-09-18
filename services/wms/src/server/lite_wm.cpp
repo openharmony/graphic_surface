@@ -17,6 +17,7 @@
 
 #include "color.h"
 #include "graphic_log.h"
+#include "pixel_format_utils.h"
 
 namespace OHOS {
 namespace {
@@ -668,20 +669,46 @@ void LiteWM::OnScreenshot(Surface* surface)
 
 void LiteWM::Screenshot()
 {
+    int32_t lineSize = 0;
+    int16_t bpp = 0;
+    uint8_t* dstAddr = nullptr;
+    uint8_t* srcAddr = nullptr;
+    int32_t width = 0;
+    int32_t height = 0;
     if (screenshotSurface_ == nullptr) {
         return;
     }
 
     SurfaceBuffer* buffer = screenshotSurface_->RequestBuffer();
-    if (buffer != nullptr) {
-        void* virAddr = buffer->GetVirAddr();
-        if (virAddr != nullptr) {
-            if (memcpy_s(virAddr, buffer->GetSize(), layerData_->virAddr, buffer->GetSize()) != EOK) {
+    if (buffer == nullptr) {
+        goto end2;
+    }
+
+    width = screenshotSurface_->GetWidth();
+    height = screenshotSurface_->GetHeight();
+    if (width > layerData_->width || height > layerData_->height) {
+        goto end1;
+    }
+
+    if (!PixelFormatUtils::BppOfPixelFormat(static_cast<ImagePixelFormat>(screenshotSurface_->GetFormat()), bpp)) {
+        goto end1;
+    }
+
+    lineSize = width * bpp;
+    dstAddr = static_cast<uint8_t*>(buffer->GetVirAddr());
+    srcAddr = layerData_->virAddr;
+    if (dstAddr != nullptr && srcAddr != nullptr) {
+        for (int32_t i = 0; i < height; i++) {
+            if (memcpy_s(dstAddr, lineSize, srcAddr, lineSize) != EOK) {
                 GRAPHIC_LOGE("memcpy_s error!");
             }
+            dstAddr += lineSize;
+            srcAddr += layerData_->stride;
         }
-        screenshotSurface_->FlushBuffer(buffer);
     }
+end1:
+    screenshotSurface_->FlushBuffer(buffer);
+end2:
     delete screenshotSurface_;
     screenshotSurface_ = nullptr;
 }

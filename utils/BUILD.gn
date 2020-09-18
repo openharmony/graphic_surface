@@ -32,6 +32,7 @@ shared_library("graphic_utils") {
         "src/geometry2d.cpp",
         "src/graphic_math.cpp",
         "src/mem_api.cpp",
+        "src/pixel_format_utils.cpp",
         "src/transform.cpp",
         "src/version.cpp",
         "src/style.cpp",
@@ -40,6 +41,7 @@ shared_library("graphic_utils") {
     include_dirs = [
         "//foundation/graphic/lite/interfaces/kits/utils",
         "//foundation/graphic/lite/interfaces/kits/config",
+        "//foundation/graphic/lite/interfaces/kits/surface",
         "//foundation/graphic/lite/frameworks/ui/include",
         "//foundation/graphic/lite/utils/include",
         "//third_party/bounds_checking_function/include",

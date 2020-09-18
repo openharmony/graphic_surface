@@ -265,7 +265,7 @@ void StyleDefault::InitPickerStyle()
 
     pickerHighlightStyle_ = defaultStyle_;
     pickerHighlightStyle_.SetStyle(STYLE_BACKGROUND_OPA, OPA_TRANSPARENT);
-    pickerHighlightStyle_.SetStyle(STYLE_TEXT_FONT, 18); // 18: F_HYQIHEI_65S_38_4
+    pickerHighlightStyle_.SetStyle(STYLE_TEXT_FONT, 18); // 18: font value
     pickerHighlightStyle_.SetStyle(STYLE_TEXT_COLOR, Color::GetColorFromRGB(0x45, 0xa5, 0xff).full);
 }
 

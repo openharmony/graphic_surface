@@ -160,7 +160,6 @@ private:
     const static uint8_t MAX_WIDTH_PERCENT = 80;
     const static uint8_t MAX_HEIGHT_PERCENT = 80;
     const static uint8_t DIALOG_RADIUS = 18;
-    constexpr static const char* DEFAULT_FONT = "HYQiHei-65S";
 
     void AddButton(DialogButtonType buttonType, UILabelButton* button, const char* text, OnClickListener* listener);
     void MeasureTitle();

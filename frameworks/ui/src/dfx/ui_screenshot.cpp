@@ -65,9 +65,19 @@ public:
         }
         ImageInfo image;
 #if COLOR_DEPTH == 16
-        image.header = { RGB565, Screen::GetInstance().GetWidth(), Screen::GetInstance().GetHeight()};
+        image.header = {
+            .colorMode = RGB565,
+            .reserved = 0,
+            .width = Screen::GetInstance().GetWidth(),
+            .height = Screen::GetInstance().GetHeight()
+        };
 #elif COLOR_DEPTH == 32
-        image.header = { RGB888, Screen::GetInstance().GetWidth(), Screen::GetInstance().GetHeight()};
+        image.header = {
+            .colorMode = ARGB8888,
+            .reserved = 0,
+            .width = Screen::GetInstance().GetWidth(),
+            .height = Screen::GetInstance().GetHeight()
+        };
 #endif
         image.dataSize = image.header.width * image.header.height * DEFAULT_COLOR_SIZE;
         image.data = nullptr;
@@ -145,7 +155,7 @@ private:
         }
 
         uint32_t blockSize = size * sizeof(uint32_t);
-        if (FileWrite(fd, argb8888Addr, blockSize) != blockSize) {
+        if (static_cast<uint32_t>(FileWrite(fd, argb8888Addr, blockSize)) != blockSize) {
             GRAPHIC_LOGE("UIScreenshotListener::WriteBlockToFile wrong amount of written data Err!\n");
             return false;
         }

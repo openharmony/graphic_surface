@@ -15,9 +15,10 @@
 
 #include "client/lite_wm_requestor.h"
 #include "client/lite_wms_client.h"
+#include "common/screen_device_proxy.h"
 #include "graphic_log.h"
 #include "input_event_info.h"
-#include "common/screen_device_proxy.h"
+#include "pixel_format_utils.h"
 #include "surface_impl.h"
 
 namespace OHOS {
@@ -125,10 +126,13 @@ void LiteWMRequestor::OnBufferAvailable()
     if (surface_ != nullptr) {
         SurfaceBuffer* buffer = surface_->AcquireBuffer();
         if (buffer != nullptr) {
-            uint8_t* virAddr = (uint8_t*)buffer->GetVirAddr();
-            uint32_t size = buffer->GetSize();
-            if (listener_ != nullptr && virAddr != nullptr) {
-                listener_->OnScreenshotEnd(virAddr, size);
+            if (listener_ != nullptr) {
+                uint8_t* virAddr = (uint8_t*)buffer->GetVirAddr();
+                int16_t bpp;
+                if (PixelFormatUtils::BppOfPixelFormat(static_cast<ImagePixelFormat>(surface_->GetFormat()), bpp)) {
+                    uint32_t size = surface_->GetWidth() * surface_->GetHeight() * bpp;
+                    listener_->OnScreenshotEnd(virAddr, size);
+                }
             }
             surface_->ReleaseBuffer(buffer);
         }
