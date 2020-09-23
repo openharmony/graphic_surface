@@ -168,7 +168,7 @@ void LiteWM::Show(int32_t id)
     LiteWindow* window = GetWindowById(id);
     if (window != nullptr) {
         window->SetIsShow(true);
-        UpdateWindow(window, window->config_.rect);
+        UpdateWindowRegion(window, window->config_.rect);
     }
 }
 
@@ -178,7 +178,7 @@ void LiteWM::Hide(int32_t id)
     LiteWindow* window = GetWindowById(id);
     if (window != nullptr) {
         window->SetIsShow(false);
-        UpdateWindow(window, window->config_.rect);
+        UpdateWindowRegion(window, window->config_.rect);
     }
 }
 
@@ -195,7 +195,7 @@ void LiteWM::RaiseToTop(int32_t id)
         head->next_->prev_ = node;
         head->next_ = node;
 
-        UpdateWindow(winList_.Begin()->data_, node->data_->config_.rect);
+        UpdateWindowRegion(winList_.Begin()->data_, node->data_->config_.rect);
     }
 }
 
@@ -212,7 +212,7 @@ void LiteWM::LowerToBottom(int32_t id)
         head->prev_->next_ = node;
         head->prev_ = node;
 
-        UpdateWindow(winList_.Begin()->data_, node->data_->config_.rect);
+        UpdateWindowRegion(winList_.Begin()->data_, node->data_->config_.rect);
     }
 }
 
@@ -304,7 +304,7 @@ void LiteWM::InitMouseCursor()
     cursorInfo_.enableCursor = false;
 }
 
-LiteWindow* LiteWM::CreateWindow(const LiteWinConfig& config)
+LiteWindow* LiteWM::CreateWindow(const LiteWinConfig& config, pid_t pid)
 {
     GraphicLocker lock(stackLock_);
     if (CheckWinIdIsAvailable() == false) {
@@ -318,6 +318,7 @@ LiteWindow* LiteWM::CreateWindow(const LiteWinConfig& config)
         delete window;
         return nullptr;
     }
+    window->SetPid(pid);
     winList_.PushFront(window);
     return window;
 }
@@ -331,7 +332,7 @@ void LiteWM::RemoveWindow(int32_t id)
     }
     LiteWindow* window = node->data_;
     winList_.Remove(node);
-    UpdateWindow(winList_.Begin()->data_, window->config_.rect);
+    AddUpdateRegion(window->config_.rect);
     delete window;
 }
 
@@ -375,22 +376,17 @@ void LiteWM::InitMutex(pthread_mutex_t& mutex, int type)
     pthread_mutexattr_destroy(&attr);
 }
 
-void LiteWM::UpdateWindow(const LiteWindow* window, const Rect& rect)
-{
-    GRAPHIC_LOGI("UpdateWindow, id=%d, rect={%d,%d,%d,%d}", window->id_, EXPAND_RECT(rect));
-    UpdateWindowRegion(window, rect);
-}
-
 void LiteWM::UpdateWindowRegion(const LiteWindow* window, const Rect& rect)
 {
     ListNode<LiteWindow *>* winNode = winList_.Tail();
     while (winNode != winList_.End()) {
         if (winNode->data_ == window) {
             CalculateUpdateRegion(winNode->prev_, EXPAND_RECT(rect));
-            break;
+            return;
         }
         winNode = winNode->prev_;
     }
+    AddUpdateRegion(rect);
 }
 
 void LiteWM::CalculateUpdateRegion(const ListNode<LiteWindow*>* winNode, int16_t x1, int16_t y1, int16_t x2, int16_t y2)
@@ -711,5 +707,21 @@ end1:
 end2:
     delete screenshotSurface_;
     screenshotSurface_ = nullptr;
+}
+
+void LiteWM::OnClientDeathNotify(pid_t pid)
+{
+    GraphicLocker lock(stackLock_);
+    auto node = winList_.Begin();
+    while (node != winList_.End()) {
+        auto tmp = node;
+        node = node->next_;
+        LiteWindow* window = tmp->data_;
+        if (window->GetPid() == pid) {
+            winList_.Remove(tmp);
+            AddUpdateRegion(window->config_.rect);
+            delete window;
+        }
+    }
 }
 }

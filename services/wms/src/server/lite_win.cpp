@@ -26,7 +26,7 @@ namespace OHOS {
 static const int16_t DEFAULT_QUEUE_SIZE = 2;
 
 LiteWindow::LiteWindow(const LiteWinConfig& config)
-    : id_(INVALID_WINDOW_ID), isShow_(false), config_(config), surface_(nullptr),
+    : id_(INVALID_WINDOW_ID), pid_(INVALID_PID), isShow_(false), config_(config), surface_(nullptr),
       backBuf_(nullptr), sid_({}), needUnregister_(false)
 {
     pthread_mutex_init(&backBufMutex_, NULL);
@@ -91,7 +91,7 @@ void LiteWindow::ResizeSurface(int16_t width, int16_t height)
 
 void LiteWindow::Update(Rect rect)
 {
-    LiteWM::GetInstance()->UpdateWindow(this, rect);
+    LiteWM::GetInstance()->UpdateWindowRegion(this, rect);
 }
 
 void LiteWindow::UpdateBackBuf()

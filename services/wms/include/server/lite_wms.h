@@ -30,24 +30,26 @@ public:
         return &wms;
     }
 
-    static void WMSRequestHandle(int funcId, void *origin, IpcIo *req, IpcIo *reply);
+    static void WMSRequestHandle(int funcId, void* origin, IpcIo* req, IpcIo* reply);
 private:
     LiteWMS() {};
     ~LiteWMS() {}
-    static int SurfaceRequestHandler(const IpcContext* context, void *ipcMsg, IpcIo *io, void *arg);
+    static int32_t SurfaceRequestHandler(const IpcContext* context, void* ipcMsg, IpcIo* io, void* arg);
+    static int32_t DeathCallBack(const IpcContext* context, void* ipcMsg, IpcIo* data, void* arg);
 
-    void GetSurface(IpcIo *req, IpcIo *reply);
-    void Show(IpcIo *req, IpcIo *reply);
-    void Hide(IpcIo *req, IpcIo *reply);
-    void RaiseToTop(IpcIo *req, IpcIo *reply);
-    void LowerToBottom(IpcIo *req, IpcIo *reply);
-    void MoveTo(IpcIo *req, IpcIo *reply);
-    void Resize(IpcIo *req, IpcIo *reply);
-    void Update(IpcIo *req, IpcIo *reply);
-    void CreateWindow(IpcIo *req, IpcIo *reply);
-    void RemoveWindow(IpcIo *req, IpcIo *reply);
-    void GetEventData(IpcIo *req, IpcIo *reply);
-    void Screenshot(IpcIo *req, IpcIo *reply);
+    void GetSurface(IpcIo* req, IpcIo* reply);
+    void Show(IpcIo* req, IpcIo* reply);
+    void Hide(IpcIo* req, IpcIo* reply);
+    void RaiseToTop(IpcIo* req, IpcIo* reply);
+    void LowerToBottom(IpcIo* req, IpcIo* reply);
+    void MoveTo(IpcIo* req, IpcIo* reply);
+    void Resize(IpcIo* req, IpcIo* reply);
+    void Update(IpcIo* req, IpcIo* reply);
+    void CreateWindow(void* origin, IpcIo* req, IpcIo* reply);
+    void RemoveWindow(IpcIo* req, IpcIo* reply);
+    void GetEventData(IpcIo* req, IpcIo* reply);
+    void Screenshot(IpcIo* req, IpcIo* reply);
+    void ClientRegister(void* origin, IpcIo* req, IpcIo* reply);
 };
 }
 #endif
