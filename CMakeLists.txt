@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.16.5)
-add_definitions(-D _WIN32)
 
-add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/harfbuzz harfbuzz.out)
-add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/icu icu.out)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/zlib zlib.out)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/libpng libpng.out)
 add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/libjpeg libjpeg.out)
@@ -11,13 +8,15 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/freetype freetype.out)
 set(UI_DIR "${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui")
 
 include_directories(${PROJECT_SOURCE_DIR}/third_party/bounds_checking_function/include)
-include_directories(${PROJECT_SOURCE_DIR}/third_party/harfbuzz/src)
-include_directories(${PROJECT_SOURCE_DIR}/third_party/icu/icu4c/source/common)
-include_directories(${PROJECT_SOURCE_DIR}/third_party/icu/icu4c/source/common/unicode)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/cJSON)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/libjpeg)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/libpng)
 include_directories(${PROJECT_SOURCE_DIR}/third_party/freetype/include)
+include_directories(${PROJECT_SOURCE_DIR}/foundation/graphic/lite/huawei_proprietary/include)
+include_directories(${PROJECT_SOURCE_DIR}/foundation/graphic/lite/huawei_proprietary/include/appfwk)
+include_directories(${PROJECT_SOURCE_DIR}/foundation/graphic/lite/huawei_proprietary/include/components)
+include_directories(${PROJECT_SOURCE_DIR}/foundation/graphic/lite/huawei_proprietary/include/common-x)
+include_directories(${PROJECT_SOURCE_DIR}/foundation/graphic/lite/huawei_proprietary/include/font)
 
 file(GLOB SECUREC "${PROJECT_SOURCE_DIR}/third_party/bounds_checking_function/src/*.c")
 
@@ -76,7 +75,6 @@ add_library(ui STATIC
  "${UI_DIR}/src/dfx/ui_dump_dom_tree.cpp"
  "${UI_DIR}/src/dfx/point_event_injector.cpp"
  "${UI_DIR}/src/dfx/event_injector.cpp"
- "${UI_DIR}/src/dfx/ui_screenshot.cpp"
  "${UI_DIR}/src/dock/input_device.cpp"
  "${UI_DIR}/src/dock/key_input_device.cpp"
  "${UI_DIR}/src/dock/pointer_input_device.cpp"
@@ -117,46 +115,46 @@ add_library(ui STATIC
  "${UI_DIR}/../../utils/src/transform.cpp"
  "${UI_DIR}/../../utils/src/version.cpp"
 )
+
 target_include_directories(ui PUBLIC
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/ui
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/ui/animator
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/ui/dfx
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/ui/events
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/ui/layout
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/ui/themes
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/ui/window
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/ui/components
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/ui/common
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/utils
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/surface
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/surface/include
  ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/common
  ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/core
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/font
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/draw
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/imgdecode
  ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/default_resource
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/components
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/utils/include
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/services/ims/include
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/services/wms
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/dfx
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/dock
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/draw
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/font
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/imgdecode
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/include/window
  ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/frameworks/ui/src
  ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/hals/include
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/innerkits
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/innerkits/ui
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/innerkits/ui/common
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/innerkits/ui/dock
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/innerkits/wms/common
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/config
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/surface
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/ui
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/ui/animator
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/ui/common
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/ui/components
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/ui/dfx
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/ui/events
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/ui/font
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/ui/layout
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/ui/themes
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/ui/window
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/interfaces/kits/utils
  ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/services/ims/include
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/huawei_proprietary/include/font
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/config
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/utils/include/adapter/linux
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/utils/include/adapter/mc
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/utils/include/adapter/win
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/huawei_proprietary/include/draw
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/huawei_proprietary/include/appfwk
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/huawei_proprietary/include
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/tools
- ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/tools/graphic_test_framework/include
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/services/wms/include
+ ${PROJECT_SOURCE_DIR}/foundation/graphic/lite/utils/include
  )
 
-target_link_libraries(ui PUBLIC harfbuzz)
-target_link_libraries(ui PUBLIC icuport)
 target_link_libraries(ui PUBLIC libjpeg)
 target_link_libraries(ui PUBLIC libpng)
 target_link_libraries(ui PUBLIC freetype)
