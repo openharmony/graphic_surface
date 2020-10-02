@@ -25,7 +25,7 @@ namespace OHOS {
 extern "C" {
 typedef enum {
     REQUEST_BUFFER = 0,
-    FLUSH_BUSFFER,
+    FLUSH_BUFFER,
     CANCEL_BUFFER,
     SET_QUEUE_SIZE,
     GET_QUEUE_SIZE,
