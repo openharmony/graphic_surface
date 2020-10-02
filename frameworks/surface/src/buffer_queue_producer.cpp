@@ -180,7 +180,7 @@ static int32_t OnGetUsage(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
 
 static IpcMsgHandle g_ipcMsgHandleList[] = {
     OnRequestBuffer,      // REQUEST_BUFFER
-    OnFlushBuffer,        // FLUSH_BUSFFER
+    OnFlushBuffer,        // FLUSH_BUFFER
     OnCancelBuffer,       // CANCEL_BUFFER
     OnSetQueueSize,       // SET_QUEUE_SIZE
     OnGetQueueSize,       // GET_QUEUE_SIZE
