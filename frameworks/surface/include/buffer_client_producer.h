@@ -54,7 +54,7 @@ public:
     SurfaceBufferImpl* RequestBuffer(uint8_t wait) override;
 
     /**
-     * @brief Flush buffer for consumer acquire. Client producer sends request(code=FLUSH_BUSFFER) to flush buffer,
+     * @brief Flush buffer for consumer acquire. Client producer sends request(code=FLUSH_BUFFER) to flush buffer,
      *        BufferQueueProducer push buffer to dirty list, and call back to consumer that buffer is available to
      *        acquire.
      * @param [in] SurfaceBufferImpl pointer, Which buffer could acquire for consumer.
