@@ -92,7 +92,7 @@ int32_t BufferClientProducer::FlushBuffer(SurfaceBufferImpl* buffer)
     buffer->WriteToIpcIo(requestIo);
     IpcIo reply;
     uintptr_t ptr;
-    ret = Transact(nullptr, sid_, FLUSH_BUSFFER, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    ret = Transact(nullptr, sid_, FLUSH_BUFFER, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
     if (ret != SURFACE_ERROR_OK) {
         GRAPHIC_LOGW("FlushBuffer failed");
         return ret;
