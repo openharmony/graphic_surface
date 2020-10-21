@@ -47,7 +47,6 @@ struct SurfaceBufferHandle {
     bool operator == (const SurfaceBufferHandle &rHandle) const
     {
         return ((key == rHandle.key)
-            && (shmid == rHandle.shmid)
             && (phyAddr == rHandle.phyAddr));
     }
 };
