@@ -204,6 +204,23 @@ namespace OHOS {
  * The value can be <b>16</b> or <b>32</b>.
  */
 #define COLOR_DEPTH 32
+
+/**
+ * @brief Represents the code number of the layer pixel format. 
+ * 0:     LAYER_PF_ARGB1555
+ * 1:     LAYER_PF_ARGB8888
+ * Other: LAYER_PF_ARGB8888
+ */
+#define LAYER_PF_CODE                     0
+
+#if LAYER_PF_CODE == 0
+#define LAYER_PF_ARGB1555
+#elif LAYER_PF_CODE == 1
+#define LAYER_PF_ARGB8888
+#else
+#define LAYER_PF_ARGB8888
+#endif
+
 /**
  * @brief Defines the file name of default vector font.
  */

@@ -20,9 +20,33 @@
 #include "surface_type.h"
 
 namespace OHOS {
+union PF_ARGB1555
+{
+    struct {
+        uint16_t blue : 5;
+        uint16_t green : 5;
+        uint16_t red : 5;
+        uint16_t alpha : 1;
+    };
+    uint16_t full;
+};
+
+union PF_ARGB8888
+{
+    struct {
+        uint16_t blue : 8;
+        uint16_t green : 8;
+        uint16_t red : 8;
+        uint16_t alpha : 8;
+    };
+    uint16_t full;
+};
+
 class PixelFormatUtils {
 public:
     static bool BppOfPixelFormat(ImagePixelFormat pixelFormat, int16_t& bpp);
+    static uint16_t ARGB8888ToARGB1555(uint32_t color);
+    static uint32_t ARGB1555ToARGB8888(uint16_t color);
 };
 }
 #endif

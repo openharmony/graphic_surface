@@ -109,7 +109,7 @@ LiteWM::LiteWM()
 
     layerData_ = GetDevSurfaceData();
     if (layerData_ != nullptr) {
-        if (layerData_->phyAddr == nullptr || layerData_->virAddr == nullptr) {
+        if (layerData_->virAddr == nullptr) {
             GRAPHIC_LOGE("LayerInfo addr is null!");
         }
         GRAPHIC_LOGI("LayerInfo, width=%d, height=%d, stride=%d",
@@ -125,7 +125,7 @@ LiteWM::~LiteWM()
 
 void LiteWM::MainTaskHandler()
 {
-    if (layerData_ == nullptr || layerData_->phyAddr == nullptr || layerData_->virAddr == nullptr) {
+    if (layerData_ == nullptr || layerData_->virAddr == nullptr) {
         return;
     }
 
@@ -547,8 +547,8 @@ void LiteWM::DrawBackground(int16_t x1, int16_t y1, int16_t x2, int16_t y2)
 
     GRAPHIC_LOGD("DrawBackground, {%d,%d,%d,%d}", x1, y1, x2, y2);
     int16_t len = (x2 - x1 + 1) * layerData_->bytePerPixel;
-    for (int y = y1; y <= y2; y++) {
-        uint16_t *buf1 = (uint16_t *)(layerData_->virAddr + y * layerData_->stride);
+    for (int16_t y = y1; y <= y2; y++) {
+        LayerColorType* buf1 = reinterpret_cast<LayerColorType*>(layerData_->virAddr + y * layerData_->stride);
         if (memset_s(buf1 + x1, len, 0, len) != EOK) {
             GRAPHIC_LOGE("memset_s error!");
         }
@@ -567,17 +567,24 @@ void LiteWM::DrawMouseCursor()
     int16_t y1 = rect.GetTop();
     int16_t y2 = rect.GetBottom();
 
-    uint16_t* buf = (uint16_t*)CURSOR_MAP;
-    uint8_t* dstBuf = layerData_->virAddr + y1 * layerData_->stride;
-    for (int y = y1; y <= y2; y++) {
-        for (int x = x1; x <= x2; x++) {
-            if ((*buf) & 0x8000) {
-                *((uint16_t*)dstBuf + x) = *(buf);
+    const uint16_t* srcBuf = reinterpret_cast<const uint16_t*>(CURSOR_MAP);
+    uint8_t* dstBuf = layerData_->virAddr + y1 * layerData_->stride + x1 * sizeof(LayerColorType);
+    for (int16_t y = y1; y <= y2; y++) {
+        const uint16_t* tmpSrc = srcBuf;
+        LayerColorType* tmpDst = reinterpret_cast<LayerColorType*>(dstBuf);
+        for (int16_t x = x1; x <= x2; x++) {
+            if ((*srcBuf) & 0x8000) {
+#ifdef LAYER_PF_ARGB1555
+                *tmpDst = *tmpSrc;
+#elif defined LAYER_PF_ARGB8888
+                *tmpDst = PixelFormatUtils::ARGB1555ToARGB8888(*tmpSrc);
+#endif
             }
-            buf++;
+            tmpSrc++;
+            tmpDst++;
         }
         dstBuf += layerData_->stride;
-        buf += (CURSOR_WIDTH - x2 + x1 - 1);
+        srcBuf += CURSOR_WIDTH;
     }
 }
 

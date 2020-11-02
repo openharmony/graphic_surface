@@ -37,4 +37,28 @@ bool PixelFormatUtils::BppOfPixelFormat(ImagePixelFormat pixelFormat, int16_t& b
     }
     return false;
 }
+
+uint16_t PixelFormatUtils::ARGB8888ToARGB1555(uint32_t color)
+{
+    PF_ARGB1555 ret;
+    PF_ARGB8888 in;
+    in.full = color;
+    ret.alpha = in.alpha;
+    ret.red = in.red >> 3;
+    ret.green = in.green >> 3;
+    ret.blue = in.blue >> 3;
+    return ret.full;
+}
+
+uint32_t PixelFormatUtils::ARGB1555ToARGB8888(uint16_t color)
+{
+    PF_ARGB8888 ret;
+    PF_ARGB1555 in;
+    in.full = color;
+    ret.alpha = in.alpha ? 0xFF : 0x0;
+    ret.red = in.red << 3;
+    ret.green = in.green << 3;
+    ret.blue = in.blue << 3;
+    return ret.full;
+}
 }
