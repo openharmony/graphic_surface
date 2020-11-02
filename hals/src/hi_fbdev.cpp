@@ -23,16 +23,6 @@
 #include "graphic_log.h"
 
 namespace OHOS {
-union Color16Argb1555 {
-    struct {
-        uint16_t blue : 5;
-        uint16_t green : 5;
-        uint16_t red : 5;
-        uint16_t alph : 1;
-    };
-    uint16_t full;
-};
-
 struct DisplayDesc {
     LayerFuncs* layerFuncs;
     uint32_t devId;
@@ -44,7 +34,15 @@ struct DisplayDesc {
 static LayerInfo g_layerInfo = {};
 static DisplayDesc g_display = {};
 constexpr const uint8_t DISPALY_DEV_ID = 0;
+#ifdef LAYER_PF_ARGB1555
 constexpr const uint8_t LAYER_BPP = 16;
+constexpr const PixelFormat HDI_LAYER_PIXEL_FORMAT = PIXEL_FMT_RGBA_5551;
+constexpr const ImagePixelFormat LAYER_PIXEL_FORMAT = IMAGE_PIXEL_FORMAT_ARGB1555;
+#elif defined LAYER_PF_ARGB8888
+constexpr const uint8_t LAYER_BPP = 32;
+constexpr const PixelFormat HDI_LAYER_PIXEL_FORMAT = PIXEL_FMT_RGBA_8888;
+constexpr const ImagePixelFormat LAYER_PIXEL_FORMAT = IMAGE_PIXEL_FORMAT_ARGB8888;
+#endif
 constexpr const uint8_t BITS_PER_BYTE = 8;
 static LiteSurfaceData g_devSurfaceData = {};
 
@@ -102,7 +100,7 @@ static void OpenLayer(void)
     g_layerInfo.width = displayInfo.width;
     g_layerInfo.height = displayInfo.height;
     g_layerInfo.bpp = LAYER_BPP;
-    g_layerInfo.pixFormat = PIXEL_FMT_RGBA_5551;
+    g_layerInfo.pixFormat = HDI_LAYER_PIXEL_FORMAT;
     g_layerInfo.type = LAYER_TYPE_GRAPHIC;
     if (g_display.layerFuncs->OpenLayer != nullptr) {
         ret = g_display.layerFuncs->OpenLayer(g_display.devId, &g_layerInfo, &g_display.layerId);
@@ -157,7 +155,7 @@ void HiFbdevInit()
     AllocDisplayBuffer();
     uintptr_t phyAddr = g_display.buffer.data.phyAddr;
     g_devSurfaceData.phyAddr = reinterpret_cast<uint8_t*>(phyAddr);
-    g_devSurfaceData.pixelFormat = IMAGE_PIXEL_FORMAT_ARGB1555;
+    g_devSurfaceData.pixelFormat = LAYER_PIXEL_FORMAT;
     g_devSurfaceData.width = g_layerInfo.width;
     g_devSurfaceData.height = g_layerInfo.height;
     g_devSurfaceData.stride = g_display.buffer.pitch;
