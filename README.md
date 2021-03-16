@@ -51,7 +51,7 @@ The consumer obtains the buffer from the dirty queue, synthesizes graphics data,
 **Figure  2**  Surface rotation process<a name="fig126141128261"></a>  
 ![](figures/surface-rotation-process.png "surface-rotation-process")
 
->![](public_sys-resources/icon-notice.gif) **NOTICE:** 
+>![](figures/icon-notice.gif) **NOTICE:** 
 >1.  A shared memory is used for data transfer, and the task of managing the shared memory runs in the process of creating a surface for the first time. If the process is abnormal and is not recycled, severe memory leakage occurs. Therefore, pay special attention to the process.
 >2.  Surfaces are generally used for cross-process transfers of large memory blocks \(such as display data\) in graphics or media. Especially, when continuous physical memory is used, the transfer rate can be greatly improved. It is not recommended that surfaces be used in small-memory transfer scenarios. Otherwise, memory fragmentation may occur, which affects the performance in typical scenarios.
 
@@ -64,6 +64,8 @@ For details, see  [WMS](en-us_topic_0000001122925147.md).
 [Graphic subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/graphics-subsystem.md)
 
 [graphic_wms](https://gitee.com/openharmony/graphic_wms/blob/master/README.md)
+
+**graphic_surface**
 
 [graphic_ui](https://gitee.com/openharmony/graphic_ui/blob/master/README.md)
 

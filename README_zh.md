@@ -51,7 +51,7 @@ hb build lite_surface
 **图 2**  Surface轮转流程<a name="fig126141128261"></a>  
 ![](figures/Surface轮转流程.png "Surface轮转流程")
 
->![](public_sys-resources/icon-notice.gif) **须知：** 
+>![](figures/icon-notice.gif) **须知：** 
 >1.  由于使用了共享内存，而共享内存的管理任务在首次创建Surface的进程中，因此需要对该进程格外关注，如果发生进程异常且没有回收处理会发生严重的内存泄漏；
 >2.  Surface一般用作图形/媒体中大块内存的跨进程传输（如显示数据），尤其在使用了连续物理内存的情况下，可以大幅提高传输速率。不建议用在小内存传输的场景，容易造成内存碎片化影响典型场景的性能。
 
@@ -64,6 +64,8 @@ hb build lite_surface
 [图形子系统](https://gitee.com/openharmony/docs/blob/master/zh-cn/readme/%E5%9B%BE%E5%BD%A2%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
 
 [graphic_wms](https://gitee.com/openharmony/graphic_wms/blob/master/README_zh.md)
+
+**graphic_surface**
 
 [graphic_ui](https://gitee.com/openharmony/graphic_ui/blob/master/README_zh.md)
 
