@@ -38,7 +38,7 @@
 #ifndef GRAPHIC_LITE_SURFACE_TYPE_H
 #define GRAPHIC_LITE_SURFACE_TYPE_H
 
-#include "pixel_format_utils.h"
+#include "gfx_utils/pixel_format_utils.h"
 
 namespace OHOS {
 #define SURFACE_MAX_WIDTH 7680

@@ -16,7 +16,7 @@
 #ifndef GRAPHIC_LITE_BUFFER_COMMON_H
 #define GRAPHIC_LITE_BUFFER_COMMON_H
 
-#include "graphic_log.h"
+#include "gfx_utils/graphic_log.h"
 
 namespace OHOS {
 #define RETURN_VAL_IF_FAIL(cond, val) { \
