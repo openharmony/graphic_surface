@@ -76,7 +76,7 @@ int32_t SurfaceBufferImpl::SetData(uint32_t key, uint8_t type, const void* data,
         return SURFACE_ERROR_INVAILD_PARAM;
     }
     if (extDatas_.size() > MAX_USER_DATA_COUNT) {
-        GRAPHIC_LOGI("Has save more ext datas, could not save one more.");
+        GRAPHIC_LOGI("No more data can be saved because the storage space is full.");
         return SURFACE_ERROR_SYSTEM_ERROR;
     }
     ExtraData extData = {0};
