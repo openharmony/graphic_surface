@@ -102,6 +102,7 @@ SurfaceBufferImpl* BufferManager::AllocBuffer(uint32_t size, uint32_t usage)
             GRAPHIC_LOGW("Clear buffer failed.");
         }
     } else {
+        grallocFucs_->FreeMem(&grallocBuffer);
         GRAPHIC_LOGW("Alloc buffer failed to shared memory segment.");
     }
     return buffer;
