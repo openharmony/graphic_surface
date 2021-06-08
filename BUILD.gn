@@ -36,7 +36,8 @@ shared_library("surface") {
   ]
   include_dirs = [
     "frameworks",
-    "//drivers/peripheral/display/interfaces_lite/include",
+    "//drivers/peripheral/base",
+    "//drivers/peripheral/display/interfaces/include",
   ]
   public_configs = [ ":surface_public_config" ]
   public_deps = [ "//foundation/graphic/utils:lite_graphic_utils" ]

@@ -40,7 +40,6 @@ enum BufferDataType {
 
 struct SurfaceBufferHandle {
     int32_t key;
-    int32_t shmid;
     uint64_t phyAddr;
     bool operator == (const SurfaceBufferHandle &rHandle) const
     {
@@ -102,26 +101,8 @@ public:
     }
 
     /**
-     * @brief Get buffer shmid, for shared virtual memory.
-     * @returns The buffer shmid.
-     */
-    int32_t GetShmid() const
-    {
-        return bufferData_.handle.shmid;
-    }
-
-    /**
-     * @brief Set buffer key, for shared virtual memory.
-     * @param [in] The buffer shmid
-     */
-    void SetShmid(int32_t shmid)
-    {
-        bufferData_.handle.shmid = shmid;
-    }
-
-    /**
      * @brief Get buffer phyAddr, for shared physical memory.
-     * @returns The buffer shmid.
+     * @returns The buffer phyAddr.
      */
     uint64_t GetPhyAddr() const override
     {
@@ -130,7 +111,7 @@ public:
 
     /**
      * @brief Set buffer phyAddr, for shared physical memory.
-     * @param [in] The buffer shmid
+     * @param [in] The buffer phyAddr
      */
     void SetPhyAddr(uint64_t phyAddr)
     {
