@@ -54,7 +54,7 @@ BufferQueue::~BufferQueue()
         if (bufferManager == nullptr) {
             continue;
         }
-        bufferManager->FreeBuffer(tmpBuffer);
+        bufferManager->FreeBuffer(&tmpBuffer);
     }
     allBuffers_.clear();
     pthread_mutex_unlock(&lock_);
@@ -225,7 +225,7 @@ void BufferQueue::NeedAttach()
     }
     BufferManager* bufferManager = BufferManager::GetInstance();
     RETURN_IF_FAIL(bufferManager);
-    SurfaceBufferImpl *buffer = bufferManager->AllocBuffer(size_, usage_);
+    SurfaceBufferImpl *buffer = bufferManager->AllocBuffer(width_, height_, format_, usage_);
     if (buffer == nullptr) {
         GRAPHIC_LOGI("BufferManager alloc memory failed ");
         return;
@@ -339,7 +339,7 @@ void BufferQueue::Detach(SurfaceBufferImpl *buffer)
     allBuffers_.remove(buffer);
     BufferManager* bufferManager = BufferManager::GetInstance();
     if (bufferManager != nullptr) {
-        bufferManager->FreeBuffer(buffer);
+        bufferManager->FreeBuffer(&buffer);
     }
 }
 
@@ -417,7 +417,7 @@ int32_t BufferQueue::Reset(uint32_t size)
              ++iterBuffer;
             continue;
         }
-        bufferManager->FreeBuffer(tmpBuffer);
+        bufferManager->FreeBuffer(&tmpBuffer);
         iterBuffer = freeList_.erase(iterBuffer);
     }
     for (iterBuffer = allBuffers_.begin(); iterBuffer != allBuffers_.end(); ++iterBuffer) {
@@ -447,7 +447,7 @@ void BufferQueue::SetQueueSize(uint8_t queueSize)
                 ++iterBuffer;
                 continue;
             }
-            bufferManager->FreeBuffer(tmpBuffer);
+            bufferManager->FreeBuffer(&tmpBuffer);
             iterBuffer = freeList_.erase(iterBuffer);
             needDelete--;
             attachCount_--;

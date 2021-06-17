@@ -16,6 +16,7 @@
 #ifndef GRAPHIC_LITE_BUFFER_MANAGER_H
 #define GRAPHIC_LITE_BUFFER_MANAGER_H
 
+#include <map>
 #include "display_gralloc.h"
 #include "surface_buffer_impl.h"
 #include "surface_type.h"
@@ -42,17 +43,19 @@ public:
 
     /**
      * @brief Allocate buffer for producer.
-     * @param [in] size, alloc buffer size.
+     * @param [in] width, alloc buffer width.
+     * @param [in] height, alloc buffer height.
+     * @param [in] format, alloc buffer format.
      * @param [in] usage, alloc buffer usage.
      * @returns buffer poiter.
      */
-    SurfaceBufferImpl* AllocBuffer(uint32_t size, uint32_t usage);
+    SurfaceBufferImpl* AllocBuffer(uint32_t width, uint32_t height, uint32_t format, uint32_t usage);
 
     /**
      * @brief Free the buffer.
-     * @param [in] SurfaceBufferImpl pointer, free the buffer size.
+     * @param [in] SurfaceBufferImpl double pointer, free the buffer size.
      */
-    void FreeBuffer(const SurfaceBufferImpl* buffer);
+    void FreeBuffer(SurfaceBufferImpl** buffer);
 
     /**
      * @brief Flush the buffer.
@@ -76,10 +79,11 @@ public:
 private:
     BufferManager() : grallocFucs_(nullptr) {}
     ~BufferManager() {}
-    bool UsageToMemType(MemType& type, uint32_t usage);
-    void SurfaceBufferToGrallocBuffer(const SurfaceBufferImpl& buffer, GrallocBuffer &graphicBuffer);
+    bool ConversionUsage(uint64_t& destUsage, uint32_t srcUsage);
+    bool ConversionFormat(PixelFormat& destFormat, uint32_t srcFormat);
+    void SurfaceBufferToBufferHandle(const SurfaceBufferImpl& buffer, BufferHandle& graphicBuffer);
     GrallocFuncs* grallocFucs_;
+    std::map<uint64_t, BufferHandle*> bufferHandleMap_;
 };
 } // end namespace
-
 #endif

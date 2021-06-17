@@ -70,7 +70,6 @@ HWTEST_F(SurfaceTest, surface_buffer_001, TestSize.Level1)
     SurfaceBufferImpl* buffer = new SurfaceBufferImpl();
     EXPECT_TRUE(buffer);
     EXPECT_EQ(0, buffer->GetKey());
-    EXPECT_EQ(0, buffer->GetShmid());
     EXPECT_EQ(0, buffer->GetPhyAddr());
     EXPECT_EQ(0, buffer->GetSize());
     EXPECT_EQ(0, buffer->GetUsage());
@@ -104,7 +103,6 @@ HWTEST_F(SurfaceTest, surface_buffer_002, TestSize.Level1)
     buffer->SetMaxSize(size);
     EXPECT_TRUE(buffer);
     EXPECT_EQ(0, buffer->GetKey());
-    EXPECT_EQ(0, buffer->GetShmid());
     EXPECT_EQ(0, buffer->GetPhyAddr());
     EXPECT_EQ(size, buffer->GetMaxSize());
     EXPECT_EQ(usage, buffer->GetUsage());
@@ -131,11 +129,6 @@ HWTEST_F(SurfaceTest, surface_buffer_002, TestSize.Level1)
 HWTEST_F(SurfaceTest, surface_buffer_003, TestSize.Level1)
 {
     SurfaceBufferImpl buffer;
-
-    EXPECT_EQ(0, buffer.GetShmid());
-    uint32_t shmid = 1;
-    buffer.SetShmid(shmid);
-    EXPECT_EQ(shmid, buffer.GetShmid());
 
     EXPECT_EQ(0, buffer.GetPhyAddr());
     uint64_t phyAddr = 0x040a7000; // mock physical address as 0x040a7000
