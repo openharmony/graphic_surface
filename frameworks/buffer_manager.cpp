@@ -134,8 +134,8 @@ SurfaceBufferImpl* BufferManager::AllocBuffer(uint32_t width, uint32_t height, u
     AllocInfo info = {
         .width = width,
         .height = height,
-        .format = tempFormat,
-        .usage = tempUsage
+        .usage = tempUsage,
+        .format = tempFormat
     };
     BufferHandle* bufferHandle = nullptr;
     if ((grallocFucs_->AllocMem == nullptr) || (grallocFucs_->AllocMem(&info, &bufferHandle) != DISPLAY_SUCCESS)) {
