@@ -65,11 +65,11 @@ BufferQueue::~BufferQueue()
 bool BufferQueue::Init()
 {
     if (pthread_mutex_init(&lock_, NULL)) {
-        GRAPHIC_LOGE("Failed init mutex");
+        HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Failed init mutex");
         return false;
     }
     if (pthread_cond_init(&freeCond_, NULL)) {
-        GRAPHIC_LOGE("Failed init cond");
+        HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Failed init cond");
         pthread_mutex_destroy(&lock_);
         return false;
     }
@@ -84,7 +84,7 @@ void BufferQueue::InitParam()
 void BufferQueue::UpdatePlaneInfo()
 {
     if (!IsFormatSupported(format_)) {
-        GRAPHIC_LOGW("The format is not suppored");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "The format is not suppored");
         return;
     }
     uint8_t planeCount = GetPlaneCount(format_);
@@ -136,7 +136,7 @@ uint8_t BufferQueue::GetPlaneCount(uint32_t format)
             count = IMAGE_PIXEL_FORMAT_PLANE_COUNT_YUV4XX;
             break;
         default:
-            GRAPHIC_LOGI("The format is not supported.");
+            HILOG_INFO(HILOG_MODULE_GRAPHIC, "The format is not supported.");
             break;
     }
     return count;
@@ -213,11 +213,11 @@ void BufferQueue::QueryEachPlaneInfo(uint32_t planeIndex, uint32_t& size, uint32
 void BufferQueue::NeedAttach()
 {
     if (queueSize_ == attachCount_) {
-        GRAPHIC_LOGI("has alloced %d buffer, could not alloc more.", allBuffers_.size());
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "has alloced %d buffer, could not alloc more.", allBuffers_.size());
         return;
     }
     if (size_ == 0 && isValidAttr(width_, height_, format_, strideAlignment_) != SURFACE_ERROR_OK) {
-        GRAPHIC_LOGI("Invalid Attr.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "Invalid Attr.");
         return;
     }
     if (size_ == 0) {
@@ -227,7 +227,7 @@ void BufferQueue::NeedAttach()
     RETURN_IF_FAIL(bufferManager);
     SurfaceBufferImpl *buffer = bufferManager->AllocBuffer(width_, height_, format_, usage_);
     if (buffer == nullptr) {
-        GRAPHIC_LOGI("BufferManager alloc memory failed ");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "BufferManager alloc memory failed ");
         return;
     }
     attachCount_++;
@@ -246,7 +246,7 @@ bool BufferQueue::CanRequest(uint8_t wait)
         NeedAttach();
         res = true;
         if (freeList_.empty()) {
-            GRAPHIC_LOGI("no buffer in freeQueue for dequeue.");
+            HILOG_INFO(HILOG_MODULE_GRAPHIC, "no buffer in freeQueue for dequeue.");
             res = false;
         }
         goto ERROR;
@@ -264,12 +264,12 @@ SurfaceBufferImpl* BufferQueue::RequestBuffer(uint8_t wait)
     SurfaceBufferImpl *buffer = nullptr;
     pthread_mutex_lock(&lock_);
     if (!CanRequest(wait)) {
-        GRAPHIC_LOGI("No buffer can request now.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "No buffer can request now.");
         goto ERROR;
     }
     buffer = freeList_.front();
     if (buffer == nullptr) {
-        GRAPHIC_LOGI("freeQueue pop buffer failed.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "freeQueue pop buffer failed.");
         goto ERROR;
     }
     freeList_.pop_front();
@@ -296,7 +296,7 @@ int32_t BufferQueue::FlushBuffer(SurfaceBufferImpl& buffer)
     pthread_mutex_lock(&lock_);
     SurfaceBufferImpl *tmpBuffer = GetBuffer(buffer);
     if (tmpBuffer == nullptr || tmpBuffer->GetState() != BUFFER_STATE_REQUEST) {
-        GRAPHIC_LOGI("Buffer is not existed or state invailed.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "Buffer is not existed or state invailed.");
         pthread_mutex_unlock(&lock_);
         return SURFACE_ERROR_BUFFER_NOT_EXISTED;
     }
@@ -314,13 +314,13 @@ SurfaceBufferImpl* BufferQueue::AcquireBuffer()
     pthread_mutex_lock(&lock_);
     if (dirtyList_.empty()) {
         pthread_mutex_unlock(&lock_);
-        GRAPHIC_LOGD("dirty queue is empty.");
+        HILOG_DEBUG(HILOG_MODULE_GRAPHIC, "dirty queue is empty.");
         return nullptr;
     }
     SurfaceBufferImpl *buffer = dirtyList_.front();
     if (buffer == nullptr) {
         pthread_mutex_unlock(&lock_);
-        GRAPHIC_LOGW("dirty queue pop buffer failed.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "dirty queue pop buffer failed.");
         return nullptr;
     }
     buffer->SetState(BUFFER_STATE_ACQUIRE);
@@ -331,7 +331,7 @@ SurfaceBufferImpl* BufferQueue::AcquireBuffer()
 void BufferQueue::Detach(SurfaceBufferImpl *buffer)
 {
     if (buffer == nullptr) {
-        GRAPHIC_LOGW("Detach buffer failed, buffer is null.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Detach buffer failed, buffer is null.");
         return;
     }
     freeList_.remove(buffer);
@@ -359,20 +359,20 @@ int32_t BufferQueue::ReleaseBuffer(const SurfaceBufferImpl& buffer, BufferState 
     pthread_mutex_lock(&lock_);
     SurfaceBufferImpl *tmpBuffer = GetBuffer(buffer);
     if (tmpBuffer == nullptr || tmpBuffer->GetState() != state) {
-        GRAPHIC_LOGI("Buffer is not existed or state invailed.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "Buffer is not existed or state invailed.");
         ret = SURFACE_ERROR_BUFFER_NOT_EXISTED;
         goto ERROR;
     }
 
     if (tmpBuffer->GetDeletePending() == 1) {
-        GRAPHIC_LOGI("Release the buffer which state is deletePending.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "Release the buffer which state is deletePending.");
         Detach(tmpBuffer);
         ret = SURFACE_ERROR_OK;
         goto ERROR;
     }
 
     if (allBuffers_.size() > queueSize_) {
-        GRAPHIC_LOGI("Release the buffer: alloc buffer count is more than max queue count.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "Release the buffer: alloc buffer count is more than max queue count.");
         attachCount_--;
         Detach(tmpBuffer);
         ret = SURFACE_ERROR_OK;
@@ -401,7 +401,7 @@ int32_t BufferQueue::Reset(uint32_t size)
 {
     if (size == 0) {
         if (isValidAttr(width_, height_, format_, strideAlignment_) != SURFACE_ERROR_OK) {
-            GRAPHIC_LOGI("Invalid Attr.");
+            HILOG_INFO(HILOG_MODULE_GRAPHIC, "Invalid Attr.");
             return SURFACE_ERROR_INVAILD_PARAM;
         } else {
             InitParam();
@@ -431,7 +431,7 @@ int32_t BufferQueue::Reset(uint32_t size)
 void BufferQueue::SetQueueSize(uint8_t queueSize)
 {
     if (queueSize > BUFFER_QUEUE_SIZE_MAX || queueSize == queueSize_) {
-        GRAPHIC_LOGI("The queue count(%u) is invaild", queueSize);
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "The queue count(%u) is invaild", queueSize);
         return;
     }
     pthread_mutex_lock(&lock_);
@@ -523,7 +523,7 @@ std::string BufferQueue::GetUserData(const std::string& key)
 void BufferQueue::SetFormat(uint32_t format)
 {
     if (format == IMAGE_PIXEL_FORMAT_NONE || !IsFormatSupported(format)) {
-        GRAPHIC_LOGI("Format is invailed or not supported %u", format);
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "Format is invailed or not supported %u", format);
         return;
     }
     pthread_mutex_lock(&lock_);

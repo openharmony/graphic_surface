@@ -24,11 +24,11 @@ Surface* Surface::CreateSurface()
         if (surface->Init()) {
             return surface;
         } else {
-            GRAPHIC_LOGE("surface init failed");
+            HILOG_ERROR(HILOG_MODULE_GRAPHIC, "surface init failed");
             delete surface;
         }
     }
-    GRAPHIC_LOGE("Create surface failed");
+    HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Create surface failed");
     return nullptr;
 }
 

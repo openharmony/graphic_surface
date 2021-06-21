@@ -21,14 +21,14 @@
 namespace OHOS {
 #define RETURN_VAL_IF_FAIL(cond, val) { \
     if (!(cond)) {                      \
-        GRAPHIC_LOGD("'%s' failed.", #cond);    \
+        HILOG_DEBUG(HILOG_MODULE_GRAPHIC, "'%s' failed.", #cond);    \
         return val;                     \
     }                                   \
 }
 
 #define RETURN_IF_FAIL(cond) {          \
     if (!(cond)) {                      \
-        GRAPHIC_LOGD("'%s' failed.", #cond);    \
+        HILOG_DEBUG(HILOG_MODULE_GRAPHIC, "'%s' failed.", #cond);    \
         return;                         \
     }                                   \
 }
