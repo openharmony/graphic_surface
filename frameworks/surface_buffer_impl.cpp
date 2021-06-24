@@ -72,11 +72,11 @@ int32_t SurfaceBufferImpl::SetData(uint32_t key, uint8_t type, const void* data,
         type >= BUFFER_DATA_TYPE_MAX ||
         size <= 0 ||
         size > sizeof(int64_t)) {
-        GRAPHIC_LOGI("Invaild Param");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "Invaild Param");
         return SURFACE_ERROR_INVAILD_PARAM;
     }
     if (extDatas_.size() > MAX_USER_DATA_COUNT) {
-        GRAPHIC_LOGI("No more data can be saved because the storage space is full.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "No more data can be saved because the storage space is full.");
         return SURFACE_ERROR_SYSTEM_ERROR;
     }
     ExtraData extData = {0};
@@ -91,13 +91,13 @@ int32_t SurfaceBufferImpl::SetData(uint32_t key, uint8_t type, const void* data,
     if (extData.value == NULL) {
         extData.value = malloc(size);
         if (extData.value == NULL) {
-            GRAPHIC_LOGE("Couldn't allocate %zu bytes for ext data", size);
+            HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Couldn't allocate %zu bytes for ext data", size);
             return SURFACE_ERROR_SYSTEM_ERROR;
         }
     }
     if (memcpy_s(extData.value, size, data, size) != EOK) {
         free(extData.value);
-        GRAPHIC_LOGW("Couldn't copy %zu bytes for ext data", size);
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Couldn't copy %zu bytes for ext data", size);
         return SURFACE_ERROR_SYSTEM_ERROR;
     }
     extData.size = size;

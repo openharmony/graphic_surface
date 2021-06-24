@@ -29,7 +29,7 @@ BufferManager* BufferManager::GetInstance()
 bool BufferManager::Init()
 {
     if (grallocFucs_ != nullptr) {
-        GRAPHIC_LOGI("BufferManager has init succeed.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "BufferManager has init succeed.");
         return true;
     }
     if (GrallocInitialize(&grallocFucs_) != DISPLAY_SUCCESS) {
@@ -52,7 +52,7 @@ bool BufferManager::ConversionUsage(uint64_t& destUsage, uint32_t srcUsage)
             destUsage = HBM_USE_MEM_MMZ_CACHE;
             break;
         default:
-            GRAPHIC_LOGW("Conversion usage failed.");
+            HILOG_WARN(HILOG_MODULE_GRAPHIC, "Conversion usage failed.");
             return false;
     }
     return true;
@@ -104,7 +104,7 @@ bool BufferManager::ConversionFormat(PixelFormat& destFormat, uint32_t srcFormat
         case IMAGE_PIXEL_FORMAT_NV16:
         case IMAGE_PIXEL_FORMAT_NV61:
         default:
-            GRAPHIC_LOGW("Conversion format failed.");
+            HILOG_WARN(HILOG_MODULE_GRAPHIC, "Conversion format failed.");
             return false;
     }
     return true;
@@ -124,11 +124,11 @@ SurfaceBufferImpl* BufferManager::AllocBuffer(uint32_t width, uint32_t height, u
     uint64_t tempUsage;
     PixelFormat tempFormat;
     if (!ConversionUsage(tempUsage, usage)) {
-        GRAPHIC_LOGW("Alloc graphic buffer failed --- conversion usage.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Alloc graphic buffer failed --- conversion usage.");
         return nullptr;
     }
     if (!ConversionFormat(tempFormat, format)) {
-        GRAPHIC_LOGW("Alloc graphic buffer failed --- conversion format.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Alloc graphic buffer failed --- conversion format.");
         return nullptr;
     }
     AllocInfo info = {
@@ -139,7 +139,7 @@ SurfaceBufferImpl* BufferManager::AllocBuffer(uint32_t width, uint32_t height, u
     };
     BufferHandle* bufferHandle = nullptr;
     if ((grallocFucs_->AllocMem == nullptr) || (grallocFucs_->AllocMem(&info, &bufferHandle) != DISPLAY_SUCCESS)) {
-        GRAPHIC_LOGW("Alloc graphic buffer failed");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Alloc graphic buffer failed");
         return nullptr;
     }
     SurfaceBufferImpl* buffer = new SurfaceBufferImpl();
@@ -150,10 +150,10 @@ SurfaceBufferImpl* BufferManager::AllocBuffer(uint32_t width, uint32_t height, u
         buffer->SetKey(bufferHandle->key);
         buffer->SetPhyAddr(bufferHandle->phyAddr);
         bufferHandleMap_.insert(std::make_pair(bufferHandle->phyAddr, bufferHandle));
-        GRAPHIC_LOGI("Alloc buffer succeed to shared memory segment.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "Alloc buffer succeed to shared memory segment.");
     } else {
         grallocFucs_->FreeMem(bufferHandle);
-        GRAPHIC_LOGW("Alloc buffer failed to shared memory segment.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Alloc buffer failed to shared memory segment.");
     }
     return buffer;
 }
@@ -162,7 +162,7 @@ void BufferManager::FreeBuffer(SurfaceBufferImpl** buffer)
 {
     RETURN_IF_FAIL((grallocFucs_ != nullptr));
     if ((*buffer) == nullptr) {
-        GRAPHIC_LOGW("Input param buffer is null.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Input param buffer is null.");
         return;
     }
     auto iter = bufferHandleMap_.find((*buffer)->GetPhyAddr());
@@ -175,7 +175,7 @@ void BufferManager::FreeBuffer(SurfaceBufferImpl** buffer)
         bufferHandleMap_.erase((*buffer)->GetPhyAddr());
         delete *buffer;
         *buffer = nullptr;
-        GRAPHIC_LOGI("Free buffer succeed.");
+        HILOG_INFO(HILOG_MODULE_GRAPHIC, "Free buffer succeed.");
     }
 }
 
@@ -185,7 +185,7 @@ bool BufferManager::MapBuffer(SurfaceBufferImpl& buffer)
     void* virAddr = NULL;
     BufferHandle bufferHandle;
     if (!ConversionUsage(bufferHandle.usage, buffer.GetUsage())) {
-        GRAPHIC_LOGW("Conversion usage failed.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Conversion usage failed.");
         return false;
     }
     SurfaceBufferToBufferHandle(buffer, bufferHandle);
@@ -200,15 +200,15 @@ bool BufferManager::MapBuffer(SurfaceBufferImpl& buffer)
             virAddr = grallocFucs_->MmapCache(&bufferHandle);
         }
     } else {
-        GRAPHIC_LOGW("No Suport usage.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "No Suport usage.");
         return false;
     }
     if (virAddr == NULL) {
-        GRAPHIC_LOGW("Map Buffer error.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Map Buffer error.");
         return false;
     }
     buffer.SetVirAddr(virAddr);
-    GRAPHIC_LOGW("Map Buffer succeed.");
+    HILOG_WARN(HILOG_MODULE_GRAPHIC, "Map Buffer succeed.");
     return true;
 }
 
@@ -217,12 +217,12 @@ void BufferManager::UnmapBuffer(SurfaceBufferImpl& buffer)
     RETURN_IF_FAIL((grallocFucs_ != nullptr));
     BufferHandle bufferHandle;
     if (!ConversionUsage(bufferHandle.usage, buffer.GetUsage())) {
-        GRAPHIC_LOGW("Conversion usage failed.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Conversion usage failed.");
         return;
     }
     SurfaceBufferToBufferHandle(buffer, bufferHandle);
     if ((grallocFucs_->Unmap == nullptr) || (grallocFucs_->Unmap(&bufferHandle) != DISPLAY_SUCCESS)) {
-        GRAPHIC_LOGW("Umap buffer failed.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Umap buffer failed.");
     }
 }
 
@@ -231,17 +231,17 @@ int32_t BufferManager::FlushCache(const SurfaceBufferImpl& buffer)
     RETURN_VAL_IF_FAIL((grallocFucs_ != nullptr), SURFACE_ERROR_NOT_READY);
     BufferHandle bufferHandle;
     if (!ConversionUsage(bufferHandle.usage, buffer.GetUsage())) {
-        GRAPHIC_LOGW("Conversion usage failed.");
+        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Conversion usage failed.");
         return false;
     }
     SurfaceBufferToBufferHandle(buffer, bufferHandle);
     if (buffer.GetUsage() == BUFFER_CONSUMER_USAGE_HARDWARE_CONSUMER_CACHE) {
         if ((grallocFucs_->FlushCache == nullptr) || (grallocFucs_->FlushCache(&bufferHandle) != DISPLAY_SUCCESS)) {
-            GRAPHIC_LOGW("Flush cache buffer failed.");
+            HILOG_WARN(HILOG_MODULE_GRAPHIC, "Flush cache buffer failed.");
         }
     } else if (buffer.GetUsage() == BUFFER_CONSUMER_USAGE_HARDWARE_PRODUCER_CACHE) {
         if ((grallocFucs_->FlushMCache == nullptr) || (grallocFucs_->FlushMCache(&bufferHandle) != DISPLAY_SUCCESS)) {
-            GRAPHIC_LOGW("Flush M cache buffer failed.");
+            HILOG_WARN(HILOG_MODULE_GRAPHIC, "Flush M cache buffer failed.");
         }
     }
     return SURFACE_ERROR_OK;
