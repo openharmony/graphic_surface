@@ -56,31 +56,31 @@ SurfaceImpl::~SurfaceImpl()
 bool SurfaceImpl::Init()
 {
     if (!BufferManager::GetInstance()->Init()) {
-        HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Failed init buffer manager");
+        GRAPHIC_LOGE("Failed init buffer manager");
         return false;
     }
     if (IsConsumer_) {
         BufferQueue* bufferQueue = new BufferQueue();
         if (bufferQueue == nullptr) {
-            HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Surface consumer(buffer queue) init failed.");
+            GRAPHIC_LOGE("Surface consumer(buffer queue) init failed.");
             return false;
         }
 
         if (!bufferQueue->Init()) {
-            HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Buffer queue init failed.");
+            GRAPHIC_LOGE("Buffer queue init failed.");
             delete bufferQueue;
             return false;
         }
 
         producer_ = new BufferQueueProducer(bufferQueue);
         if (producer_ == nullptr) {
-            HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Surface consumer(producer) init failed.");
+            GRAPHIC_LOGE("Surface consumer(producer) init failed.");
             delete bufferQueue;
             return false;
         }
         consumer_ = new BufferQueueConsumer(*bufferQueue);
         if (consumer_ == nullptr) {
-            HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Surface consumer(consumer) init failed.");
+            GRAPHIC_LOGE("Surface consumer(consumer) init failed.");
             delete producer_;
             producer_ = nullptr;
             return false;
@@ -88,7 +88,7 @@ bool SurfaceImpl::Init()
         SvcIdentity svc;
         int32_t ret = RegisterIpcCallback(IpcRequestHandler, 0, IPC_WAIT_FOREVER, &svc, producer_);
         if (ret != LITEIPC_OK) {
-            HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Surface RegisterIpcCallback failed.");
+            GRAPHIC_LOGE("Surface RegisterIpcCallback failed.");
             delete consumer_;
             consumer_ = nullptr;
             delete producer_;
@@ -99,7 +99,7 @@ bool SurfaceImpl::Init()
     } else {
         producer_ = new BufferClientProducer(sid_);
         if (producer_ == nullptr) {
-            HILOG_ERROR(HILOG_MODULE_GRAPHIC, "Surface producer init failed.");
+            GRAPHIC_LOGE("Surface producer init failed.");
             return false;
         }
     }
@@ -292,7 +292,7 @@ Surface* SurfaceImpl::GenericSurfaceByIpcIo(IpcIo& io)
             if (surface->Init()) {
                 return surface;
             } else {
-                HILOG_ERROR(HILOG_MODULE_GRAPHIC, "surface init failed");
+                GRAPHIC_LOGE("surface init failed");
                 delete surface;
             }
         }

@@ -36,7 +36,7 @@ static int32_t OnRequestBuffer(BufferQueueProducer* product, void *ipcMsg, IpcIo
     IpcIoInit(&reply, tmpData, DEFAULT_IPC_SIZE, 1);
     uint32_t ret = -1;
     if (buffer == nullptr) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "get buffer failed");
+        GRAPHIC_LOGW("get buffer failed");
         IpcIoPushInt32(&reply, -1);
         ret = -1;
     } else {
@@ -182,12 +182,12 @@ static int32_t OnSetUserData(BufferQueueProducer* product, void *ipcMsg, IpcIo *
     size_t len = 0;
     const char* key = reinterpret_cast<char *>(IpcIoPopString(io, &len));
     if (key == nullptr || len == 0) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Get user data key failed");
+        GRAPHIC_LOGW("Get user data key failed");
         return -1;
     }
     const char* value = reinterpret_cast<char *>(IpcIoPopString(io, &len));
     if (value == nullptr || len == 0) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Get user data value failed");
+        GRAPHIC_LOGW("Get user data value failed");
         return -1;
     }
     std::string sKey = key;
@@ -202,7 +202,7 @@ static int32_t OnGetUserData(BufferQueueProducer* product, void *ipcMsg, IpcIo *
     size_t len = 0;
     const char* key = reinterpret_cast<char *>(IpcIoPopString(io, &len));
     if (key == nullptr || len == 0) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Get user data key failed");
+        GRAPHIC_LOGW("Get user data key failed");
         return -1;
     }
     std::string sKey = key;
@@ -279,7 +279,7 @@ int32_t BufferQueueProducer::FlushBuffer(SurfaceBufferImpl* buffer)
     if (buffer->GetUsage() == BUFFER_CONSUMER_USAGE_HARDWARE_CONSUMER_CACHE) {
         int32_t ret = manager->FlushCache(*buffer);
         if (ret != 0) {
-            HILOG_WARN(HILOG_MODULE_GRAPHIC, "Flush buffer failed, ret=%d", ret);
+            GRAPHIC_LOGW("Flush buffer failed, ret=%d", ret);
             return ret;
         }
     }
@@ -389,13 +389,13 @@ void BufferQueueProducer::UnregisterConsumerListener()
 int32_t BufferQueueProducer::OnIpcMsg(void *ipcMsg, IpcIo *io)
 {
     if (ipcMsg == NULL || io == NULL) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Invalid parameter, null pointer");
+        GRAPHIC_LOGW("Invalid parameter, null pointer");
         return SURFACE_ERROR_INVAILD_PARAM;
     }
     uint32_t code;
     (void)GetCode(ipcMsg, &code);
     if (code >= MAX_REQUEST_CODE) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Resquest code(%u) does not support.", code);
+        GRAPHIC_LOGW("Resquest code(%u) does not support.", code);
         FreeBuffer(nullptr, ipcMsg);
         return SURFACE_ERROR_INVAILD_REQUEST;
     }
