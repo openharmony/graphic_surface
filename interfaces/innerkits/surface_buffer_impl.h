@@ -173,7 +173,7 @@ public:
     void SetSize(uint32_t size) override
     {
         if (size > bufferData_.size) {
-            HILOG_INFO(HILOG_MODULE_GRAPHIC, "Input param is invaild");
+            GRAPHIC_LOGI("Input param is invaild");
             return;
         }
         len_ = size;

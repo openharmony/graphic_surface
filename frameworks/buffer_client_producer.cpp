@@ -44,12 +44,12 @@ SurfaceBufferImpl* BufferClientProducer::RequestBuffer(uint8_t wait)
     uintptr_t ptr;
     int32_t ret = Transact(nullptr, sid_, REQUEST_BUFFER, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
     if (ret != 0) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "RequestBuffer Transact failed");
+        GRAPHIC_LOGW("RequestBuffer Transact failed");
         return nullptr;
     }
     ret = IpcIoPopInt32(&reply);
     if (ret != 0) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "RequestBuffer generic failed code=%d", ret);
+        GRAPHIC_LOGW("RequestBuffer generic failed code=%d", ret);
         FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
         return nullptr;
     }
@@ -58,7 +58,7 @@ SurfaceBufferImpl* BufferClientProducer::RequestBuffer(uint8_t wait)
     buffer->ReadFromIpcIo(reply);
     BufferManager* manager = BufferManager::GetInstance();
     if (manager == nullptr) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "BufferManager is null, usage(%d)", buffer->GetUsage());
+        GRAPHIC_LOGW("BufferManager is null, usage(%d)", buffer->GetUsage());
         delete buffer;
         FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
         return nullptr;
@@ -82,7 +82,7 @@ int32_t BufferClientProducer::FlushBuffer(SurfaceBufferImpl* buffer)
     if (buffer->GetUsage() == BUFFER_CONSUMER_USAGE_HARDWARE_PRODUCER_CACHE) {
         ret = manager->FlushCache(*buffer);
         if (ret != SURFACE_ERROR_OK) {
-            HILOG_WARN(HILOG_MODULE_GRAPHIC, "Flush buffer failed, ret=%d", ret);
+            GRAPHIC_LOGW("Flush buffer failed, ret=%d", ret);
             return ret;
         }
     }
@@ -94,13 +94,13 @@ int32_t BufferClientProducer::FlushBuffer(SurfaceBufferImpl* buffer)
     uintptr_t ptr;
     ret = Transact(nullptr, sid_, FLUSH_BUFFER, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "FlushBuffer failed");
+        GRAPHIC_LOGW("FlushBuffer failed");
         return ret;
     }
     ret = IpcIoPopInt32(&reply);
     FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "FlushBuffer failed code=%d", ret);
+        GRAPHIC_LOGW("FlushBuffer failed code=%d", ret);
         return -1;
     }
     manager->UnmapBuffer(*buffer);
@@ -121,7 +121,7 @@ void BufferClientProducer::Cancel(SurfaceBufferImpl* buffer)
     uintptr_t ptr;
     int32_t ret = Transact(nullptr, sid_, CANCEL_BUFFER, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Cancel buffer failed");
+        GRAPHIC_LOGW("Cancel buffer failed");
     } else {
         FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
     }
@@ -141,7 +141,7 @@ void BufferClientProducer::SetQueueSize(uint8_t queueSize)
     uintptr_t ptr;
     int32_t ret = Transact(nullptr, sid_, SET_QUEUE_SIZE, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Set Attr(%d:%u) failed", SET_QUEUE_SIZE, queueSize);
+        GRAPHIC_LOGW("Set Attr(%d:%u) failed", SET_QUEUE_SIZE, queueSize);
     }
     FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
 }
@@ -155,12 +155,12 @@ uint8_t BufferClientProducer::GetQueueSize()
     uintptr_t ptr;
     int32_t ret = Transact(nullptr, sid_, GET_QUEUE_SIZE, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "GetAttr Transact failed, errno=%d", ret);
+        GRAPHIC_LOGW("GetAttr Transact failed, errno=%d", ret);
         return 0;
     }
     ret = IpcIoPopInt32(&reply);
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "GetAttr failed code=%d", GET_QUEUE_SIZE);
+        GRAPHIC_LOGW("GetAttr failed code=%d", GET_QUEUE_SIZE);
         FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
         return 0;
     }
@@ -180,7 +180,7 @@ void BufferClientProducer::SetWidthAndHeight(uint32_t width, uint32_t height)
     uintptr_t ptr;
     int32_t ret = Transact(nullptr, sid_, SET_WIDTH_AND_HEIGHT, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "SetWidthAndHeight failed");
+        GRAPHIC_LOGW("SetWidthAndHeight failed");
     } else {
         FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
     }
@@ -254,7 +254,7 @@ void BufferClientProducer::SetUserData(const std::string& key, const std::string
     uintptr_t ptr;
     int32_t ret = Transact(nullptr, sid_, SET_USER_DATA, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Get user data(%s) failed", key.c_str());
+        GRAPHIC_LOGW("Get user data(%s) failed", key.c_str());
     } else {
         FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
     }
@@ -276,7 +276,7 @@ std::string BufferClientProducer::GetUserData(const std::string& key)
         size_t len = 0;
         const char* value = reinterpret_cast<char *>(IpcIoPopString(&reply, &len));
         if (value == nullptr || len == 0) {
-            HILOG_WARN(HILOG_MODULE_GRAPHIC, "Get user data failed");
+            GRAPHIC_LOGW("Get user data failed");
         } else {
             sValue = value;
         }
@@ -295,7 +295,7 @@ void BufferClientProducer::SetAttr(uint32_t code, uint32_t value)
     uintptr_t ptr;
     int32_t ret = Transact(nullptr, sid_, code, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "Set Attr(%u:%u) failed", code, value);
+        GRAPHIC_LOGW("Set Attr(%u:%u) failed", code, value);
     } else {
         FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
     }
@@ -310,12 +310,12 @@ uint32_t BufferClientProducer::GetAttr(uint32_t code)
     uintptr_t ptr;
     int32_t ret = Transact(nullptr, sid_, code, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "GetAttr Transact failed, errno=%d", ret);
+        GRAPHIC_LOGW("GetAttr Transact failed, errno=%d", ret);
         return 0;
     }
     ret = IpcIoPopInt32(&reply);
     if (ret != SURFACE_ERROR_OK) {
-        HILOG_WARN(HILOG_MODULE_GRAPHIC, "GetAttr failed code=%d", code);
+        GRAPHIC_LOGW("GetAttr failed code=%d", code);
         FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
         return 0;
     }
