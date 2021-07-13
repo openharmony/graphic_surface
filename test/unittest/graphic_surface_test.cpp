@@ -638,7 +638,7 @@ HWTEST_F(SurfaceTest, surface_003, TestSize.Level1)
     SurfaceBuffer* requestBuffer = surface->RequestBuffer(); // no size, return null pointer
     EXPECT_FALSE(requestBuffer);
 
-    surface->SetSize(1024); // Set alloc 1024B SHM
+    surface->SetWidthAndHeight(454, 454); // 454 : surface width and height
     requestBuffer = surface->RequestBuffer();
     EXPECT_TRUE(requestBuffer);
 
