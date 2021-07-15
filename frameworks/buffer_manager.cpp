@@ -38,7 +38,7 @@ bool BufferManager::Init()
     return true;
 }
 
-bool BufferManager::ConversionUsage(uint64_t& destUsage, uint32_t srcUsage)
+bool BufferManager::ConvertUsage(uint64_t& destUsage, uint32_t srcUsage) const
 {
     switch (srcUsage) {
         case BUFFER_CONSUMER_USAGE_SORTWARE:
@@ -58,7 +58,7 @@ bool BufferManager::ConversionUsage(uint64_t& destUsage, uint32_t srcUsage)
     return true;
 }
 
-bool BufferManager::ConversionFormat(PixelFormat& destFormat, uint32_t srcFormat)
+bool BufferManager::ConvertFormat(PixelFormat& destFormat, uint32_t srcFormat) const
 {
     switch (srcFormat) {
         case IMAGE_PIXEL_FORMAT_NONE:
@@ -88,21 +88,6 @@ bool BufferManager::ConversionFormat(PixelFormat& destFormat, uint32_t srcFormat
         case IMAGE_PIXEL_FORMAT_YVU420:
             destFormat = PIXEL_FMT_YCRCB_420_P;
             break;
-        case IMAGE_PIXEL_FORMAT_YUYV:
-        case IMAGE_PIXEL_FORMAT_YVYU:
-        case IMAGE_PIXEL_FORMAT_VYUY:
-        case IMAGE_PIXEL_FORMAT_AYUV:
-        case IMAGE_PIXEL_FORMAT_UYVY:
-        case IMAGE_PIXEL_FORMAT_YUV410:
-        case IMAGE_PIXEL_FORMAT_YVU410:
-        case IMAGE_PIXEL_FORMAT_YUV411:
-        case IMAGE_PIXEL_FORMAT_YVU411:
-        case IMAGE_PIXEL_FORMAT_YVU422:
-        case IMAGE_PIXEL_FORMAT_YUV422:
-        case IMAGE_PIXEL_FORMAT_YUV444:
-        case IMAGE_PIXEL_FORMAT_YVU444:
-        case IMAGE_PIXEL_FORMAT_NV16:
-        case IMAGE_PIXEL_FORMAT_NV61:
         default:
             GRAPHIC_LOGW("Conversion format failed.");
             return false;
@@ -110,51 +95,100 @@ bool BufferManager::ConversionFormat(PixelFormat& destFormat, uint32_t srcFormat
     return true;
 }
 
-void BufferManager::SurfaceBufferToBufferHandle(const SurfaceBufferImpl& buffer, BufferHandle& graphicBuffer)
+BufferHandle* BufferManager::AllocateBufferHandle(SurfaceBufferImpl& buffer) const
 {
-    graphicBuffer.key = buffer.GetKey();
-    graphicBuffer.phyAddr = buffer.GetPhyAddr();
-    graphicBuffer.size = buffer.GetSize();
-    graphicBuffer.virAddr = buffer.GetVirAddr();
+    uint32_t total = buffer.GetReserveFds() + buffer.GetReserveInts() + sizeof(BufferHandle);
+    BufferHandle* bufferHandle = static_cast<BufferHandle *>(malloc(total));
+    if (bufferHandle != nullptr) {
+        bufferHandle->key = buffer.GetKey();
+        bufferHandle->phyAddr = buffer.GetPhyAddr();
+        bufferHandle->size = buffer.GetSize();
+        if (!ConvertUsage(bufferHandle->usage, buffer.GetUsage())) {
+            GRAPHIC_LOGW("Conversion usage failed.");
+            free(bufferHandle);
+            return nullptr;
+        }
+        bufferHandle->virAddr = buffer.GetVirAddr();
+        bufferHandle->reserveFds = buffer.GetReserveFds();
+        bufferHandle->reserveInts = buffer.GetReserveInts();
+        for (uint32_t i = 0; i < (buffer.GetReserveFds() + buffer.GetReserveInts()); i++) {
+            buffer.GetInt32(i, bufferHandle->reserve[i]);
+        }
+        return bufferHandle;
+    }
+    return nullptr;
 }
 
-SurfaceBufferImpl* BufferManager::AllocBuffer(uint32_t width, uint32_t height, uint32_t format, uint32_t usage)
+SurfaceBufferImpl* BufferManager::AllocBuffer(AllocInfo info)
 {
     RETURN_VAL_IF_FAIL((grallocFucs_ != nullptr), nullptr);
-    uint64_t tempUsage;
-    PixelFormat tempFormat;
-    if (!ConversionUsage(tempUsage, usage)) {
-        GRAPHIC_LOGW("Alloc graphic buffer failed --- conversion usage.");
-        return nullptr;
-    }
-    if (!ConversionFormat(tempFormat, format)) {
-        GRAPHIC_LOGW("Alloc graphic buffer failed --- conversion format.");
-        return nullptr;
-    }
-    AllocInfo info = {
-        .width = width,
-        .height = height,
-        .usage = tempUsage,
-        .format = tempFormat
-    };
     BufferHandle* bufferHandle = nullptr;
     if ((grallocFucs_->AllocMem == nullptr) || (grallocFucs_->AllocMem(&info, &bufferHandle) != DISPLAY_SUCCESS)) {
-        GRAPHIC_LOGW("Alloc graphic buffer failed");
+        GRAPHIC_LOGE("Alloc graphic buffer failed");
         return nullptr;
     }
     SurfaceBufferImpl* buffer = new SurfaceBufferImpl();
     if (buffer != nullptr) {
         buffer->SetMaxSize(bufferHandle->size);
-        buffer->SetUsage(usage);
         buffer->SetVirAddr(bufferHandle->virAddr);
         buffer->SetKey(bufferHandle->key);
         buffer->SetPhyAddr(bufferHandle->phyAddr);
-        bufferHandleMap_.insert(std::make_pair(bufferHandle->phyAddr, bufferHandle));
-        GRAPHIC_LOGI("Alloc buffer succeed to shared memory segment.");
+        buffer->SetStride(bufferHandle->stride);
+        buffer->SetReserveFds(bufferHandle->reserveFds);
+        buffer->SetReserveInts(bufferHandle->reserveInts);
+        for (uint32_t i = 0; i < (bufferHandle->reserveFds + bufferHandle->reserveInts); i++) {
+            buffer->SetInt32(i, bufferHandle->reserve[i]);
+        }
+        BufferKey key = {bufferHandle->key, bufferHandle->phyAddr};
+        bufferHandleMap_.insert(std::make_pair(key, bufferHandle));
+        GRAPHIC_LOGD("Alloc buffer succeed to shared memory segment.");
     } else {
         grallocFucs_->FreeMem(bufferHandle);
         GRAPHIC_LOGW("Alloc buffer failed to shared memory segment.");
     }
+    return buffer;
+}
+
+SurfaceBufferImpl* BufferManager::AllocBuffer(uint32_t size, uint32_t usage)
+{
+    RETURN_VAL_IF_FAIL((grallocFucs_ != nullptr), nullptr);
+    AllocInfo info = {0};
+    info.expectedSize = size;
+    info.format = PIXEL_FMT_RGB_565;
+    if (!ConvertUsage(info.usage, usage)) {
+        GRAPHIC_LOGW("Alloc graphic buffer failed --- conversion usage.");
+        return nullptr;
+    }
+    info.usage |= HBM_USE_ASSIGN_SIZE;
+    SurfaceBufferImpl* buffer = AllocBuffer(info);
+    if (buffer == nullptr) {
+        GRAPHIC_LOGE("Alloc graphic buffer failed");
+        return nullptr;
+    }
+    buffer->SetUsage(usage);
+    return buffer;
+}
+
+SurfaceBufferImpl* BufferManager::AllocBuffer(uint32_t width, uint32_t height, uint32_t format, uint32_t usage)
+{
+    RETURN_VAL_IF_FAIL((grallocFucs_ != nullptr), nullptr);
+    AllocInfo info = {0};
+    info.width = width;
+    info.height = height;
+    if (!ConvertUsage(info.usage, usage)) {
+        GRAPHIC_LOGW("Alloc graphic buffer failed --- conversion usage.");
+        return nullptr;
+    }
+    if (!ConvertFormat(info.format, format)) {
+        GRAPHIC_LOGW("Alloc graphic buffer failed --- conversion format.");
+        return nullptr;
+    }
+    SurfaceBufferImpl* buffer = AllocBuffer(info);
+    if (buffer == nullptr) {
+        GRAPHIC_LOGE("Alloc graphic buffer failed");
+        return nullptr;
+    }
+    buffer->SetUsage(usage);
     return buffer;
 }
 
@@ -165,85 +199,85 @@ void BufferManager::FreeBuffer(SurfaceBufferImpl** buffer)
         GRAPHIC_LOGW("Input param buffer is null.");
         return;
     }
-    auto iter = bufferHandleMap_.find((*buffer)->GetPhyAddr());
+    BufferKey key = {(*buffer)->GetKey(), (*buffer)->GetPhyAddr()};
+    auto iter = bufferHandleMap_.find(key);
     if (iter == bufferHandleMap_.end()) {
         return;
     }
     BufferHandle* bufferHandle = iter->second;
     if (grallocFucs_->FreeMem != nullptr) {
         grallocFucs_->FreeMem(bufferHandle);
-        bufferHandleMap_.erase((*buffer)->GetPhyAddr());
+        bufferHandleMap_.erase(key);
         delete *buffer;
         *buffer = nullptr;
-        GRAPHIC_LOGI("Free buffer succeed.");
+        GRAPHIC_LOGD("Free buffer succeed.");
     }
 }
 
-bool BufferManager::MapBuffer(SurfaceBufferImpl& buffer)
+bool BufferManager::MapBuffer(SurfaceBufferImpl& buffer) const
 {
     RETURN_VAL_IF_FAIL((grallocFucs_ != nullptr), false);
     void* virAddr = NULL;
-    BufferHandle bufferHandle;
-    if (!ConversionUsage(bufferHandle.usage, buffer.GetUsage())) {
-        GRAPHIC_LOGW("Conversion usage failed.");
+    BufferHandle* bufferHandle = AllocateBufferHandle(buffer);
+    if (bufferHandle == nullptr) {
         return false;
     }
-    SurfaceBufferToBufferHandle(buffer, bufferHandle);
     if (buffer.GetUsage() == BUFFER_CONSUMER_USAGE_HARDWARE ||
         buffer.GetUsage() == BUFFER_CONSUMER_USAGE_HARDWARE_CONSUMER_CACHE ||
         buffer.GetUsage() == BUFFER_CONSUMER_USAGE_SORTWARE) {
         if (grallocFucs_->Mmap != nullptr) {
-            virAddr = grallocFucs_->Mmap(&bufferHandle);
+            virAddr = grallocFucs_->Mmap(bufferHandle);
         }
     } else if (buffer.GetUsage() == BUFFER_CONSUMER_USAGE_HARDWARE_PRODUCER_CACHE) {
         if (grallocFucs_->MmapCache != nullptr) {
-            virAddr = grallocFucs_->MmapCache(&bufferHandle);
+            virAddr = grallocFucs_->MmapCache(bufferHandle);
         }
     } else {
-        GRAPHIC_LOGW("No Suport usage.");
+        GRAPHIC_LOGE("No Suport usage.");
+        free(bufferHandle);
         return false;
     }
     if (virAddr == NULL) {
-        GRAPHIC_LOGW("Map Buffer error.");
+        GRAPHIC_LOGE("Map Buffer error.");
+        free(bufferHandle);
         return false;
     }
     buffer.SetVirAddr(virAddr);
-    GRAPHIC_LOGW("Map Buffer succeed.");
+    GRAPHIC_LOGD("Map Buffer succeed.");
+    free(bufferHandle);
     return true;
 }
 
-void BufferManager::UnmapBuffer(SurfaceBufferImpl& buffer)
+void BufferManager::UnmapBuffer(SurfaceBufferImpl& buffer) const
 {
     RETURN_IF_FAIL((grallocFucs_ != nullptr));
-    BufferHandle bufferHandle;
-    if (!ConversionUsage(bufferHandle.usage, buffer.GetUsage())) {
-        GRAPHIC_LOGW("Conversion usage failed.");
+    BufferHandle* bufferHandle = AllocateBufferHandle(buffer);
+    if (bufferHandle == nullptr) {
         return;
     }
-    SurfaceBufferToBufferHandle(buffer, bufferHandle);
-    if ((grallocFucs_->Unmap == nullptr) || (grallocFucs_->Unmap(&bufferHandle) != DISPLAY_SUCCESS)) {
-        GRAPHIC_LOGW("Umap buffer failed.");
+    if ((grallocFucs_->Unmap == nullptr) || (grallocFucs_->Unmap(bufferHandle) != DISPLAY_SUCCESS)) {
+        GRAPHIC_LOGE("Umap buffer failed.");
     }
+    free(bufferHandle);
 }
 
-int32_t BufferManager::FlushCache(const SurfaceBufferImpl& buffer)
+int32_t BufferManager::FlushCache(SurfaceBufferImpl& buffer) const
 {
     RETURN_VAL_IF_FAIL((grallocFucs_ != nullptr), SURFACE_ERROR_NOT_READY);
-    BufferHandle bufferHandle;
-    if (!ConversionUsage(bufferHandle.usage, buffer.GetUsage())) {
-        GRAPHIC_LOGW("Conversion usage failed.");
-        return false;
+    BufferHandle* bufferHandle = AllocateBufferHandle(buffer);
+    if (bufferHandle == nullptr) {
+        return -1;
     }
-    SurfaceBufferToBufferHandle(buffer, bufferHandle);
     if (buffer.GetUsage() == BUFFER_CONSUMER_USAGE_HARDWARE_CONSUMER_CACHE) {
-        if ((grallocFucs_->FlushCache == nullptr) || (grallocFucs_->FlushCache(&bufferHandle) != DISPLAY_SUCCESS)) {
-            GRAPHIC_LOGW("Flush cache buffer failed.");
+        if ((grallocFucs_->FlushCache == nullptr) || (grallocFucs_->FlushCache(bufferHandle) != DISPLAY_SUCCESS)) {
+            GRAPHIC_LOGE("Flush cache buffer failed.");
         }
     } else if (buffer.GetUsage() == BUFFER_CONSUMER_USAGE_HARDWARE_PRODUCER_CACHE) {
-        if ((grallocFucs_->FlushMCache == nullptr) || (grallocFucs_->FlushMCache(&bufferHandle) != DISPLAY_SUCCESS)) {
-            GRAPHIC_LOGW("Flush M cache buffer failed.");
+        if ((grallocFucs_->FlushMCache == nullptr) || (grallocFucs_->FlushMCache(bufferHandle) != DISPLAY_SUCCESS)) {
+            GRAPHIC_LOGE("Flush M cache buffer failed.");
         }
     }
+    free(bufferHandle);
     return SURFACE_ERROR_OK;
 }
 } // namespace OHOS

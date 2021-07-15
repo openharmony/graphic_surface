@@ -41,6 +41,9 @@ enum BufferDataType {
 struct SurfaceBufferHandle {
     int32_t key;
     uint64_t phyAddr;
+    int32_t stride;       /* the stride of memory */
+    uint32_t reserveFds;  /* the number of reserved fd value */
+    uint32_t reserveInts; /* the number of reserved integer value */
     bool operator == (const SurfaceBufferHandle &rHandle) const
     {
         return ((key == rHandle.key)
@@ -116,6 +119,60 @@ public:
     void SetPhyAddr(uint64_t phyAddr)
     {
         bufferData_.handle.phyAddr = phyAddr;
+    }
+    
+    /**
+     * @brief Get buffer stride, for shared physical memory.
+     * @returns The buffer phyAddr.
+     */
+    int32_t GetStride() const
+    {
+        return bufferData_.handle.stride;
+    }
+
+    /**
+     * @brief Set buffer stride, for shared physical memory.
+     * @param [in] The buffer phyAddr
+     */
+    void SetStride(int32_t stride)
+    {
+        bufferData_.handle.stride = stride;
+    }
+
+    /**
+     * @brief Get buffer reserveInts, for shared physical memory.
+     * @returns The buffer phyAddr.
+     */
+    uint32_t GetReserveInts() const
+    {
+        return bufferData_.handle.reserveInts;
+    }
+
+    /**
+     * @brief Set buffer reserveInts, for shared physical memory.
+     * @param [in] The buffer phyAddr
+     */
+    void SetReserveInts(uint32_t reserveInts)
+    {
+        bufferData_.handle.reserveInts = reserveInts;
+    }
+
+    /**
+     * @brief Get buffer reserveFds, for shared physical memory.
+     * @returns The buffer phyAddr.
+     */
+    uint32_t GetReserveFds() const
+    {
+        return bufferData_.handle.reserveFds;
+    }
+
+    /**
+     * @brief Set buffer reserveFds, for shared physical memory.
+     * @param [in] The buffer phyAddr
+     */
+    void SetReserveFds(uint32_t reserveFds)
+    {
+        bufferData_.handle.reserveFds = reserveFds;
     }
 
     /**

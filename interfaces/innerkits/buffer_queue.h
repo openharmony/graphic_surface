@@ -87,12 +87,6 @@ public:
     int32_t CancelBuffer(const SurfaceBufferImpl& buffer);
 
     /**
-     * @brief Whether the format is supported or not.
-     * @param [in], Buffer format.
-     */
-    bool IsFormatSupported(uint32_t format);
-
-    /**
      * @brief Set queue size, alloc max buffer count.
      *        Default is 1. Max count is 10.
      * @param [in] queueSize. Could alloc buffer count.
@@ -203,12 +197,7 @@ public:
     bool Init();
 private:
     bool CanRequest(uint8_t wait);
-    void InitParam();
     int32_t isValidAttr(uint32_t width, uint32_t height, uint32_t format, uint32_t strideAlignment);
-    uint8_t GetPlaneCount(uint32_t format);
-    uint32_t Align(uint32_t value, uint32_t alignment);
-    void QueryEachPlaneInfo(uint32_t planeIndex, uint32_t& size, uint32_t& offset, uint32_t& stride);
-    void UpdatePlaneInfo();
     int32_t Reset(uint32_t size = 0);
     void NeedAttach();
     void Detach(SurfaceBufferImpl* buffer);
@@ -223,7 +212,7 @@ private:
     uint8_t queueSize_;
     uint32_t strideAlignment_;
     uint8_t attachCount_;
-    PlaneInfo planes_[SURFACE_MAX_PLANE_NUM] = {};
+    bool customSize_;
     std::list<SurfaceBufferImpl *> freeList_;
     std::list<SurfaceBufferImpl *> dirtyList_;
     std::list<SurfaceBufferImpl *> allBuffers_;

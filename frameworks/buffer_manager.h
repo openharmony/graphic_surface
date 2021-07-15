@@ -43,6 +43,14 @@ public:
 
     /**
      * @brief Allocate buffer for producer.
+     * @param [in] size, alloc buffer size.
+     * @param [in] usage, alloc buffer usage.
+     * @returns buffer poiter.
+     */
+    SurfaceBufferImpl* AllocBuffer(uint32_t size, uint32_t usage);
+
+    /**
+     * @brief Allocate buffer for producer.
      * @param [in] width, alloc buffer width.
      * @param [in] height, alloc buffer height.
      * @param [in] format, alloc buffer format.
@@ -62,28 +70,40 @@ public:
      * @param [in] Flush SurfaceBufferImpl cache to physical memory.
      * @returns 0 is succeed; other is failed.
      */
-    int32_t FlushCache(const SurfaceBufferImpl& buffer);
+    int32_t FlushCache(SurfaceBufferImpl& buffer) const;
 
     /**
      * @brief Map the buffer for producer.
      * @param [in] SurfaceBufferImpl, need to map.
      * @returns Whether map buffer succeed or not.
      */
-    bool MapBuffer(SurfaceBufferImpl& buffer);
+    bool MapBuffer(SurfaceBufferImpl& buffer) const;
 
     /**
      * @brief Unmap the buffer, which producer could not writed data.
      * @param [in] SurfaceBufferImpl, need to unmap.
      */
-    void UnmapBuffer(SurfaceBufferImpl& buffer);
+    void UnmapBuffer(SurfaceBufferImpl& buffer) const;
+
+protected:
+    BufferHandle* AllocateBufferHandle(SurfaceBufferImpl& buffer) const;
+    SurfaceBufferImpl* AllocBuffer(AllocInfo info);
+    bool ConvertUsage(uint64_t& destUsage, uint32_t srcUsage) const;
+    bool ConvertFormat(PixelFormat& destFormat, uint32_t srcFormat) const;
+
 private:
     BufferManager() : grallocFucs_(nullptr) {}
     ~BufferManager() {}
-    bool ConversionUsage(uint64_t& destUsage, uint32_t srcUsage);
-    bool ConversionFormat(PixelFormat& destFormat, uint32_t srcFormat);
-    void SurfaceBufferToBufferHandle(const SurfaceBufferImpl& buffer, BufferHandle& graphicBuffer);
+
     GrallocFuncs* grallocFucs_;
-    std::map<uint64_t, BufferHandle*> bufferHandleMap_;
+    struct BufferKey {
+        int32_t key;
+        uint64_t phyAddr;
+        bool operator< (const BufferKey &x) const {
+            return (key < x.key) || (key == x.key && phyAddr < x.phyAddr);
+        }
+    };
+    std::map<BufferKey, BufferHandle*> bufferHandleMap_;
 };
 } // end namespace
 #endif

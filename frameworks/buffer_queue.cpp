@@ -38,7 +38,8 @@ BufferQueue::BufferQueue()
       size_(0),
       queueSize_(BUFFER_QUEUE_SIZE_DEFAULT),
       strideAlignment_(BUFFER_STRIDE_ALIGNMENT_DEFAULT),
-      attachCount_(0)
+      attachCount_(0),
+      customSize_(false)
 {
 }
 
@@ -76,140 +77,6 @@ bool BufferQueue::Init()
     return true;
 }
 
-void BufferQueue::InitParam()
-{
-    UpdatePlaneInfo();
-}
-
-void BufferQueue::UpdatePlaneInfo()
-{
-    if (!IsFormatSupported(format_)) {
-        GRAPHIC_LOGW("The format is not suppored");
-        return;
-    }
-    uint8_t planeCount = GetPlaneCount(format_);
-    uint32_t size = 0;
-    uint32_t offset = 0;
-    uint32_t stride = 0;
-    size_ = 0;
-    for (uint8_t i = 0; i < planeCount; i++) {
-        QueryEachPlaneInfo(i, size, offset, stride);
-        planes_[i].size = size;
-        planes_[i].offset = offset;
-        planes_[i].stride = stride;
-        size_ += size;
-    }
-    stride_ = planes_[0].stride;
-}
-
-uint8_t BufferQueue::GetPlaneCount(uint32_t format)
-{
-    uint8_t count = 0;
-    switch (format) {
-        case IMAGE_PIXEL_FORMAT_ARGB8888:
-        case IMAGE_PIXEL_FORMAT_RGB888:
-        case IMAGE_PIXEL_FORMAT_RGB565:
-        case IMAGE_PIXEL_FORMAT_ARGB1555:
-        case IMAGE_PIXEL_FORMAT_AYUV:
-        case IMAGE_PIXEL_FORMAT_UYVY:
-        case IMAGE_PIXEL_FORMAT_VYUY:
-        case IMAGE_PIXEL_FORMAT_YUYV:
-        case IMAGE_PIXEL_FORMAT_YVYU:
-            count = IMAGE_PIXEL_FORMAT_PLANE_COUNT_RGB;
-            break;
-        case IMAGE_PIXEL_FORMAT_NV12:
-        case IMAGE_PIXEL_FORMAT_NV21:
-        case IMAGE_PIXEL_FORMAT_NV16:
-        case IMAGE_PIXEL_FORMAT_NV61:
-            count = IMAGE_PIXEL_FORMAT_PLANE_COUNT_YUVSPXX;
-            break;
-        case IMAGE_PIXEL_FORMAT_YUV410:
-        case IMAGE_PIXEL_FORMAT_YUV411:
-        case IMAGE_PIXEL_FORMAT_YUV420:
-        case IMAGE_PIXEL_FORMAT_YUV422:
-        case IMAGE_PIXEL_FORMAT_YUV444:
-        case IMAGE_PIXEL_FORMAT_YVU410:
-        case IMAGE_PIXEL_FORMAT_YVU411:
-        case IMAGE_PIXEL_FORMAT_YVU420:
-        case IMAGE_PIXEL_FORMAT_YVU422:
-        case IMAGE_PIXEL_FORMAT_YVU444:
-            count = IMAGE_PIXEL_FORMAT_PLANE_COUNT_YUV4XX;
-            break;
-        default:
-            GRAPHIC_LOGI("The format is not supported.");
-            break;
-    }
-    return count;
-}
-
-bool BufferQueue::IsFormatSupported(uint32_t format)
-{
-    bool isSupported = false;
-    switch (format) {
-        case IMAGE_PIXEL_FORMAT_RGB565:
-        case IMAGE_PIXEL_FORMAT_RGB888:
-        case IMAGE_PIXEL_FORMAT_ARGB1555:
-        case IMAGE_PIXEL_FORMAT_ARGB8888:
-        case IMAGE_PIXEL_FORMAT_NV21:
-            isSupported = true;
-            break;
-        default:
-            break;
-    }
-    return isSupported;
-}
-
-uint32_t BufferQueue::Align(uint32_t value, uint32_t alignment)
-{
-    return ((value + alignment - 1) / alignment) * alignment;
-}
-
-void BufferQueue::QueryEachPlaneInfo(uint32_t planeIndex, uint32_t& size, uint32_t& offset, uint32_t& stride)
-{
-    int32_t bitPerPixel;
-    int32_t tmpOffset = 0;
-    int32_t tmpStride = 0;
-    int32_t tmpSize = 0;
-    switch (format_) {
-        case IMAGE_PIXEL_FORMAT_RGB565:
-        case IMAGE_PIXEL_FORMAT_ARGB1555:
-            bitPerPixel = 16; // 16 bits/Pixel these pixel formats.
-            tmpOffset = 0;
-            tmpStride = Align(width_ * bitPerPixel / BITS_PER_BYTE, strideAlignment_);
-            tmpSize = tmpStride * height_;
-            break;
-        case IMAGE_PIXEL_FORMAT_RGB888:
-            bitPerPixel = 24; // 24 bits/Pixel these pixel formats.
-            tmpOffset = 0;
-            tmpStride = Align(width_ * bitPerPixel / BITS_PER_BYTE, strideAlignment_);
-            tmpSize = tmpStride * height_;
-            break;
-        case IMAGE_PIXEL_FORMAT_ARGB8888:
-            bitPerPixel = 32; // 32 bits/Pixel these pixel formats.
-            tmpOffset = 0;
-            tmpStride = Align(width_ * bitPerPixel / BITS_PER_BYTE, strideAlignment_);
-            tmpSize = tmpStride * height_;
-            break;
-        case IMAGE_PIXEL_FORMAT_NV12:
-        case IMAGE_PIXEL_FORMAT_NV21:
-            bitPerPixel = 12; // 12 bits/Pixel these pixel formats.
-            tmpOffset = 0;
-            tmpStride = Align(width_ * bitPerPixel / BITS_PER_BYTE, strideAlignment_);
-            tmpSize = tmpStride * height_;
-            if (planeIndex == 0) {
-                break;
-            }
-            tmpOffset = tmpSize;
-            tmpSize = tmpStride * (height_ / 2); // NV12 and NV21 format second plane size need to divide by 2.
-            break;
-        default:
-            break;
-    }
-    offset = tmpOffset;
-    stride = tmpStride;
-    size = tmpSize;
-}
-
 void BufferQueue::NeedAttach()
 {
     if (queueSize_ == attachCount_) {
@@ -220,16 +87,20 @@ void BufferQueue::NeedAttach()
         GRAPHIC_LOGI("Invalid Attr.");
         return;
     }
-    if (size_ == 0) {
-        InitParam();
-    }
     BufferManager* bufferManager = BufferManager::GetInstance();
     RETURN_IF_FAIL(bufferManager);
-    SurfaceBufferImpl *buffer = bufferManager->AllocBuffer(width_, height_, format_, usage_);
+    SurfaceBufferImpl *buffer = nullptr;
+    if (size_ != 0 && customSize_) {
+        buffer = bufferManager->AllocBuffer(size_, usage_);
+    } else {
+        buffer = bufferManager->AllocBuffer(width_, height_, format_, usage_);
+    }
     if (buffer == nullptr) {
         GRAPHIC_LOGI("BufferManager alloc memory failed ");
         return;
     }
+    size_ = buffer->GetSize();
+    stride_ = buffer->GetStride();
     attachCount_++;
     freeList_.push_back(buffer);
     allBuffers_.push_back(buffer);
@@ -328,6 +199,7 @@ SurfaceBufferImpl* BufferQueue::AcquireBuffer()
     pthread_mutex_unlock(&lock_);
     return buffer;
 }
+
 void BufferQueue::Detach(SurfaceBufferImpl *buffer)
 {
     if (buffer == nullptr) {
@@ -391,8 +263,8 @@ ERROR:
 int32_t BufferQueue::isValidAttr(uint32_t width, uint32_t height, uint32_t format, uint32_t strideAlignment)
 {
     if (width == 0 || height == 0 || strideAlignment <= 0
-        || format == IMAGE_PIXEL_FORMAT_NONE || !IsFormatSupported(format)) {
-        return SURFACE_ERROR_INVAILD_PARAM;
+        || format == IMAGE_PIXEL_FORMAT_NONE) {
+            return SURFACE_ERROR_INVAILD_PARAM;
     }
     return SURFACE_ERROR_OK;
 }
@@ -404,7 +276,8 @@ int32_t BufferQueue::Reset(uint32_t size)
             GRAPHIC_LOGI("Invalid Attr.");
             return SURFACE_ERROR_INVAILD_PARAM;
         } else {
-            InitParam();
+            size_ = 0;
+            customSize_ = false;
         }
     }
     std::list<SurfaceBufferImpl *>::iterator iterBuffer = freeList_.begin();
@@ -493,6 +366,7 @@ void BufferQueue::SetSize(uint32_t size)
 {
     pthread_mutex_lock(&lock_);
     size_ = size;
+    customSize_ = true;
     Reset(size);
     pthread_mutex_unlock(&lock_);
     pthread_cond_signal(&freeCond_);
@@ -522,7 +396,7 @@ std::string BufferQueue::GetUserData(const std::string& key)
 
 void BufferQueue::SetFormat(uint32_t format)
 {
-    if (format == IMAGE_PIXEL_FORMAT_NONE || !IsFormatSupported(format)) {
+    if (format == IMAGE_PIXEL_FORMAT_NONE) {
         GRAPHIC_LOGI("Format is invailed or not supported %u", format);
         return;
     }
