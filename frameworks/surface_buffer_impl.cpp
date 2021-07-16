@@ -127,6 +127,8 @@ void SurfaceBufferImpl::ReadFromIpcIo(IpcIo& io)
 {
     bufferData_.handle.key =  IpcIoPopInt32(&io);
     bufferData_.handle.phyAddr = IpcIoPopUint64(&io);
+    bufferData_.handle.reserveFds =  IpcIoPopUint32(&io);
+    bufferData_.handle.reserveInts = IpcIoPopUint32(&io);
     bufferData_.size = IpcIoPopUint32(&io);
     bufferData_.usage = IpcIoPopUint32(&io);
     len_ = IpcIoPopUint32(&io);
@@ -156,6 +158,8 @@ void SurfaceBufferImpl::WriteToIpcIo(IpcIo& io)
 {
     IpcIoPushInt32(&io, bufferData_.handle.key);
     IpcIoPushUint64(&io, bufferData_.handle.phyAddr);
+    IpcIoPushUint32(&io, bufferData_.handle.reserveFds);
+    IpcIoPushUint32(&io, bufferData_.handle.reserveInts);
     IpcIoPushUint32(&io, bufferData_.size);
     IpcIoPushUint32(&io, bufferData_.usage);
     IpcIoPushUint32(&io, len_);
