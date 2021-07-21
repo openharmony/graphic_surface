@@ -292,10 +292,6 @@ HWTEST_F(SurfaceTest, surface_set_002, TestSize.Level1)
     surface->SetFormat(0);
     EXPECT_EQ(101, surface->GetFormat());
 
-    // set format 105 failed, return default.
-    surface->SetFormat(105);
-    EXPECT_EQ(101, surface->GetFormat());
-
     // set format 102 succeed, return 102.
     surface->SetFormat(102);
     EXPECT_EQ(102, surface->GetFormat());
@@ -336,24 +332,21 @@ HWTEST_F(SurfaceTest, surface_set_003, TestSize.Level1)
     EXPECT_EQ(4, surface->GetStrideAlignment()); // default format stride alignment is 4
 
     surface->SetWidthAndHeight(99, 90);
+    SurfaceBuffer* bufferFirst = surface->RequestBuffer();
+    EXPECT_EQ(208, surface->GetStride());
+    surface->CancelBuffer(bufferFirst);
 
-    // set stride alignment 3 failed, return default.
+    // set stride alignment 3 failed, return default.SetStrideAlignment has expired, delete again
     surface->SetStrideAlignment(3);
     EXPECT_EQ(4, surface->GetStrideAlignment());
-    EXPECT_EQ(200, surface->GetStride());
 
-    // set stride alignment 33 failed, return default.
+    // set stride alignment 33 failed, return default.SetStrideAlignment has expired, delete again
     surface->SetStrideAlignment(33);
     EXPECT_EQ(4, surface->GetStrideAlignment());
-    EXPECT_EQ(200, surface->GetStride());
 
-    // set stride alignment 32 succeed, return default.
+    // set stride alignment 32 succeed, return default.SetStrideAlignment has expired, delete again
     surface->SetStrideAlignment(32);
-    EXPECT_EQ(224, surface->GetStride());
-
-    // set stride alignment 8 succeed, return default.
-    surface->SetStrideAlignment(8);
-    EXPECT_EQ(200, surface->GetStride());
+    EXPECT_EQ(32, surface->GetStrideAlignment());
 
     surface->UnregisterConsumerListener();
     delete surface;
@@ -583,8 +576,10 @@ HWTEST_F(SurfaceTest, surface_001, TestSize.Level1)
     EXPECT_EQ(202, surface->GetHeight());
     EXPECT_EQ(102, surface->GetFormat());
     EXPECT_EQ(8, surface->GetStrideAlignment());
-    EXPECT_EQ(208, surface->GetStride()); // calculate by width, height, format, stride alignment.
-    EXPECT_EQ(42016, surface->GetSize()); // calculate by width, height, format, stride alignment.
+    SurfaceBuffer* bufferFirst = surface->RequestBuffer();
+    EXPECT_EQ(208, surface->GetStride()); // calculate by width, height, format.
+    EXPECT_EQ(42016, surface->GetSize()); // calculate by width, height, format.
+    surface->CancelBuffer(bufferFirst);
 
     surface->UnregisterConsumerListener();
     delete surface;
