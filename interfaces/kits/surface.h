@@ -313,7 +313,7 @@ public:
      */
     virtual void UnregisterConsumerListener() = 0;
 protected:
-    Surface(){}
+    Surface() {}
 };
 } // end namespace
 #endif

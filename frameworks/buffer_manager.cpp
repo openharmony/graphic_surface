@@ -217,7 +217,7 @@ void BufferManager::FreeBuffer(SurfaceBufferImpl** buffer)
 bool BufferManager::MapBuffer(SurfaceBufferImpl& buffer) const
 {
     RETURN_VAL_IF_FAIL((grallocFucs_ != nullptr), false);
-    void* virAddr = NULL;
+    void* virAddr = nullptr;
     BufferHandle* bufferHandle = AllocateBufferHandle(buffer);
     if (bufferHandle == nullptr) {
         return false;
@@ -237,7 +237,7 @@ bool BufferManager::MapBuffer(SurfaceBufferImpl& buffer) const
         free(bufferHandle);
         return false;
     }
-    if (virAddr == NULL) {
+    if (virAddr == nullptr) {
         GRAPHIC_LOGE("Map Buffer error.");
         free(bufferHandle);
         return false;
