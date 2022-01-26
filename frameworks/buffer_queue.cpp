@@ -22,7 +22,6 @@
 #include "buffer_manager.h"
 
 namespace OHOS {
-const int32_t BITS_PER_BYTE = 8;
 const int32_t BUFFER_STRIDE_ALIGNMENT_DEFAULT = 4;
 const uint8_t BUFFER_QUEUE_SIZE_DEFAULT = 1;
 const uint8_t BUFFER_QUEUE_SIZE_MAX = 10;
