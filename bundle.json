@@ -1,0 +1,39 @@
+{
+  "name": "@ohos/surface",
+  "description": "Graphic shared memory",
+  "version": "3.1",
+  "license": "Apache License 2.0",
+  "pubiishAs": "code-segment",
+  "segment": {
+    "destPath": "foundation/graphic/surface"
+  },
+  "dirs": {},
+  "scripts": {},
+  "component": {
+    "name": "surface",
+    "subsystem": "graphic",
+    "syscap": [ "SystemCapability.Graphic.Surface" ],
+    "feature": [],
+    "adapted_system_type": [ "small" ],
+    "rom": "110KB",
+    "ram": "~50KB",
+    "deps": {
+      "third_party": [
+        "bounds_checking_function"
+      ],
+      "components": [
+        "hilog_lite",
+        "ipc_lite",
+        "peripheral_display",
+        "peripheral_input"
+      ]
+    },
+    "build": {
+      "sub_component": [ 
+        "//foundation/graphic/surface:lite_surface",
+        "//foundation/graphic/surface/test:lite_surface_test" ],
+      "inner_kits": [],
+      "test": []
+    }
+  }
+}
