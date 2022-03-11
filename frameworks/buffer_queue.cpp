@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -263,7 +263,7 @@ int32_t BufferQueue::isValidAttr(uint32_t width, uint32_t height, uint32_t forma
 {
     if (width == 0 || height == 0 || strideAlignment <= 0
         || format == IMAGE_PIXEL_FORMAT_NONE) {
-            return SURFACE_ERROR_INVAILD_PARAM;
+            return SURFACE_ERROR_INVALID_PARAM;
     }
     return SURFACE_ERROR_OK;
 }
@@ -273,7 +273,7 @@ int32_t BufferQueue::Reset(uint32_t size)
     if (size == 0) {
         if (isValidAttr(width_, height_, format_, strideAlignment_) != SURFACE_ERROR_OK) {
             GRAPHIC_LOGI("Invalid Attr.");
-            return SURFACE_ERROR_INVAILD_PARAM;
+            return SURFACE_ERROR_INVALID_PARAM;
         } else {
             size_ = 0;
             customSize_ = false;
@@ -303,7 +303,7 @@ int32_t BufferQueue::Reset(uint32_t size)
 void BufferQueue::SetQueueSize(uint8_t queueSize)
 {
     if (queueSize > BUFFER_QUEUE_SIZE_MAX || queueSize == queueSize_) {
-        GRAPHIC_LOGI("The queue count(%u) is invaild", queueSize);
+        GRAPHIC_LOGI("The queue count(%u) is invalid", queueSize);
         return;
     }
     pthread_mutex_lock(&lock_);
