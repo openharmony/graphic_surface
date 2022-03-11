@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -65,7 +65,7 @@ public:
      * @param [in] whether waiting or not.
      *        wait = 1. waiting util get surface buffer.
      *        wait = 0. No wait to get surface buffer.
-     * @returns buffer poiter.
+     * @returns buffer pointer.
      */
     virtual SurfaceBufferImpl* RequestBuffer(uint8_t wait) = 0;
 

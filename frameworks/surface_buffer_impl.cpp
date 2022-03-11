@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,10 +37,10 @@ int32_t SurfaceBufferImpl::GetInt32(uint32_t key, int32_t& value)
     void *data = NULL;
     uint8_t size;
     if (GetData(key, &type, &data, &size) != SURFACE_ERROR_OK || type != BUFFER_DATA_TYPE_INT_32) {
-        return SURFACE_ERROR_INVAILD_PARAM;
+        return SURFACE_ERROR_INVALID_PARAM;
     }
     if (size != sizeof(value)) {
-        return SURFACE_ERROR_INVAILD_PARAM;
+        return SURFACE_ERROR_INVALID_PARAM;
     }
     value = *(reinterpret_cast<int32_t *>(data));
     return SURFACE_ERROR_OK;
@@ -57,10 +57,10 @@ int32_t SurfaceBufferImpl::GetInt64(uint32_t key, int64_t& value)
     void *data = NULL;
     uint8_t size;
     if (GetData(key, &type, &data, &size) != SURFACE_ERROR_OK || type != BUFFER_DATA_TYPE_INT_64) {
-        return SURFACE_ERROR_INVAILD_PARAM;
+        return SURFACE_ERROR_INVALID_PARAM;
     }
     if (size != sizeof(value)) {
-        return SURFACE_ERROR_INVAILD_PARAM;
+        return SURFACE_ERROR_INVALID_PARAM;
     }
     value = *(reinterpret_cast<int64_t *>(data));
     return SURFACE_ERROR_OK;
@@ -72,8 +72,8 @@ int32_t SurfaceBufferImpl::SetData(uint32_t key, uint8_t type, const void* data,
         type >= BUFFER_DATA_TYPE_MAX ||
         size <= 0 ||
         size > sizeof(int64_t)) {
-        GRAPHIC_LOGI("Invaild Param");
-        return SURFACE_ERROR_INVAILD_PARAM;
+        GRAPHIC_LOGI("Invalid Param");
+        return SURFACE_ERROR_INVALID_PARAM;
     }
     if (extDatas_.size() > MAX_USER_DATA_COUNT) {
         GRAPHIC_LOGI("No more data can be saved because the storage space is full.");
@@ -109,12 +109,12 @@ int32_t SurfaceBufferImpl::SetData(uint32_t key, uint8_t type, const void* data,
 int32_t SurfaceBufferImpl::GetData(uint32_t key, uint8_t* type, void** data, uint8_t* size)
 {
     if ((type == nullptr) || (data == nullptr) || (size == nullptr)) {
-        return SURFACE_ERROR_INVAILD_PARAM;
+        return SURFACE_ERROR_INVALID_PARAM;
     }
 
     std::map<uint32_t, ExtraData>::iterator iter = extDatas_.find(key);
     if (iter == extDatas_.end()) {
-        return SURFACE_ERROR_INVAILD_PARAM;
+        return SURFACE_ERROR_INVALID_PARAM;
     }
     ExtraData extData = extDatas_[key];
     *data = extData.value;

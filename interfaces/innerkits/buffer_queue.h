@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef GRAPHIC_LITE_BUFFER_QUEUE
-#define GRAPHIC_LITE_BUFFER_QUEUE
+#ifndef GRAPHIC_LITE_BUFFER_QUEUE_H
+#define GRAPHIC_LITE_BUFFER_QUEUE_H
 
 #include <list>
 #include <map>
@@ -53,7 +53,7 @@ public:
      * @param [in] whether waiting or not.
      *        wait = 1. waiting util free list has buffer, pop and return it.
      *        wait = 0. No wait, could return null pointer.
-     * @returns buffer poiter.
+     * @returns buffer pointer.
      */
     SurfaceBufferImpl* RequestBuffer(uint8_t wait);
 
@@ -68,7 +68,7 @@ public:
 
     /**
      * @brief Acquire buffer. Consumer acquire buffer, which producer has flush and push to free list.
-     * @returns buffer poiter.
+     * @returns buffer pointer.
      */
     SurfaceBufferImpl* AcquireBuffer();
 
