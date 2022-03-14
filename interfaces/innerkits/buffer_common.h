@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -34,8 +34,8 @@ namespace OHOS {
 }
 
 enum BufferErrorCode {
-    SURFACE_ERROR_INVAILD_PARAM = -10,
-    SURFACE_ERROR_INVAILD_REQUEST,
+    SURFACE_ERROR_INVALID_PARAM = -10,
+    SURFACE_ERROR_INVALID_REQUEST,
     SURFACE_ERROR_NOT_READY,
     SURFACE_ERROR_SYSTEM_ERROR,
     SURFACE_ERROR_BUFFER_NOT_EXISTED,

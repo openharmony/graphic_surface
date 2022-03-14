@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -230,7 +230,7 @@ public:
     void SetSize(uint32_t size) override
     {
         if (size > bufferData_.size) {
-            GRAPHIC_LOGI("Input param is invaild");
+            GRAPHIC_LOGI("Input param is invalid");
             return;
         }
         len_ = size;
@@ -361,9 +361,9 @@ private:
     /**
      * Set extra data for buffer, like <key,value>.
      * @key, unique uint32_t. If exited, will overlap;
-     * @type, value type. Current suport see detail enum OHOS::BUFFER_DATA_TYPE
+     * @type, value type. Current support see detail enum OHOS::BUFFER_DATA_TYPE
      * @data, value pointer, which storage the value;
-     * @size, value lenth.
+     * @size, value length.
      */
     int32_t SetData(uint32_t key, uint8_t type, const void* data, uint8_t size);
     int32_t GetData(uint32_t key, uint8_t* type, void** data, uint8_t* size);

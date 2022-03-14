@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,9 +21,7 @@
 
 namespace OHOS {
 /**
- * @brief Surface producer abstract class. Provide request, flush, cancel and set buffer attr ability.
- *        In multi process, the producer is BufferClientProducer; In single process, it is BufferQueueProducer.
- *        Using in multi media and graphic for multi process.
+ * @brief Surface consumer abstract class. Provide acquire, release and set buffer queue ability.
  */
 class BufferQueueConsumer {
 public:
@@ -36,7 +34,7 @@ public:
     /**
      * @brief Acquire buffer. When producer has flush and push buffer to free list,
      *        Consumer acquire the buffer.
-     * @returns buffer poiter.
+     * @returns buffer pointer.
      */
 
     SurfaceBufferImpl* AcquireBuffer();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -61,9 +61,9 @@ void SurfaceTest::TearDown(void)
  * Feature: Surface
  * Function: new SurfaceBuffer
  * SubFunction: NA
- * FunctionPoints: Surface Buffer initilization.
+ * FunctionPoints: Surface Buffer initialization.
  * EnvConditions: NA
- * CaseDescription: Verify the Surface Buffer initilization.
+ * CaseDescription: Verify the Surface Buffer initialization.
  */
 HWTEST_F(SurfaceTest, surface_buffer_001, TestSize.Level1)
 {
@@ -89,9 +89,9 @@ HWTEST_F(SurfaceTest, surface_buffer_001, TestSize.Level1)
  * Feature: Surface
  * Function: new SurfaceBuffer(uint32_t size, uint32_t flag, uint32_t usage)
  * SubFunction: NA
- * FunctionPoints: Surface Buffer initilization.
+ * FunctionPoints: Surface Buffer initialization.
  * EnvConditions: NA
- * CaseDescription: Verify the Surface Buffer initilization.
+ * CaseDescription: Verify the Surface Buffer initialization.
  */
 HWTEST_F(SurfaceTest, surface_buffer_002, TestSize.Level1)
 {

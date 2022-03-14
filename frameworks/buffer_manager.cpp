@@ -233,7 +233,7 @@ bool BufferManager::MapBuffer(SurfaceBufferImpl& buffer) const
             virAddr = grallocFucs_->MmapCache(bufferHandle);
         }
     } else {
-        GRAPHIC_LOGE("No Suport usage.");
+        GRAPHIC_LOGE("No support usage.");
         free(bufferHandle);
         return false;
     }
