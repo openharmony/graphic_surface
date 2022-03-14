@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -192,7 +192,7 @@ void SurfaceImpl::SetQueueSize(uint8_t queueSize)
 
 uint8_t SurfaceImpl::GetQueueSize()
 {
-    RETURN_VAL_IF_FAIL(producer_, SURFACE_ERROR_INVAILD_PARAM);
+    RETURN_VAL_IF_FAIL(producer_, SURFACE_ERROR_INVALID_PARAM);
     uint8_t queueSize = producer_->GetQueueSize();
     return queueSize;
 }
@@ -217,8 +217,8 @@ SurfaceBuffer* SurfaceImpl::RequestBuffer(uint8_t wait)
 
 int32_t SurfaceImpl::FlushBuffer(SurfaceBuffer* buffer)
 {
-    RETURN_VAL_IF_FAIL(producer_, SURFACE_ERROR_INVAILD_PARAM);
-    RETURN_VAL_IF_FAIL(buffer != nullptr, SURFACE_ERROR_INVAILD_PARAM);
+    RETURN_VAL_IF_FAIL(producer_, SURFACE_ERROR_INVALID_PARAM);
+    RETURN_VAL_IF_FAIL(buffer != nullptr, SURFACE_ERROR_INVALID_PARAM);
     SurfaceBufferImpl* liteBuffer = reinterpret_cast<SurfaceBufferImpl*>(buffer);
     return producer_->FlushBuffer(liteBuffer);
 }
@@ -271,9 +271,9 @@ int32_t SurfaceImpl::IpcRequestHandler(const IpcContext* context, void* ipcMsg, 
 
 int32_t SurfaceImpl::DoIpcMsg(void* ipcMsg, IpcIo* io)
 {
-    RETURN_VAL_IF_FAIL(producer_, SURFACE_ERROR_INVAILD_PARAM);
-    RETURN_VAL_IF_FAIL(ipcMsg != nullptr, SURFACE_ERROR_INVAILD_PARAM);
-    RETURN_VAL_IF_FAIL(io != nullptr, SURFACE_ERROR_INVAILD_PARAM);
+    RETURN_VAL_IF_FAIL(producer_, SURFACE_ERROR_INVALID_PARAM);
+    RETURN_VAL_IF_FAIL(ipcMsg != nullptr, SURFACE_ERROR_INVALID_PARAM);
+    RETURN_VAL_IF_FAIL(io != nullptr, SURFACE_ERROR_INVALID_PARAM);
     BufferQueueProducer* bufferQueueProducer = reinterpret_cast<BufferQueueProducer*>(producer_);
     return bufferQueueProducer->OnIpcMsg(ipcMsg, io);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -260,7 +260,7 @@ SurfaceBufferImpl* BufferQueueProducer::RequestBuffer(uint8_t wait)
 
 int32_t BufferQueueProducer::EnqueueBuffer(SurfaceBufferImpl& buffer)
 {
-    RETURN_VAL_IF_FAIL(bufferQueue_, SURFACE_ERROR_INVAILD_PARAM);
+    RETURN_VAL_IF_FAIL(bufferQueue_, SURFACE_ERROR_INVALID_PARAM);
     int32_t ret = bufferQueue_->FlushBuffer(buffer);
     if (ret == 0) {
         if (consumerListener_ != nullptr) {
@@ -272,8 +272,8 @@ int32_t BufferQueueProducer::EnqueueBuffer(SurfaceBufferImpl& buffer)
 
 int32_t BufferQueueProducer::FlushBuffer(SurfaceBufferImpl* buffer)
 {
-    RETURN_VAL_IF_FAIL(buffer, SURFACE_ERROR_INVAILD_PARAM);
-    RETURN_VAL_IF_FAIL(bufferQueue_, SURFACE_ERROR_INVAILD_PARAM);
+    RETURN_VAL_IF_FAIL(buffer, SURFACE_ERROR_INVALID_PARAM);
+    RETURN_VAL_IF_FAIL(bufferQueue_, SURFACE_ERROR_INVALID_PARAM);
     BufferManager* manager = BufferManager::GetInstance();
     RETURN_VAL_IF_FAIL(manager, SURFACE_ERROR_NOT_READY);
     if (buffer->GetUsage() == BUFFER_CONSUMER_USAGE_HARDWARE_CONSUMER_CACHE) {
@@ -390,14 +390,14 @@ int32_t BufferQueueProducer::OnIpcMsg(void *ipcMsg, IpcIo *io)
 {
     if (ipcMsg == NULL || io == NULL) {
         GRAPHIC_LOGW("Invalid parameter, null pointer");
-        return SURFACE_ERROR_INVAILD_PARAM;
+        return SURFACE_ERROR_INVALID_PARAM;
     }
     uint32_t code;
     (void)GetCode(ipcMsg, &code);
     if (code >= MAX_REQUEST_CODE) {
         GRAPHIC_LOGW("Resquest code(%u) does not support.", code);
         FreeBuffer(nullptr, ipcMsg);
-        return SURFACE_ERROR_INVAILD_REQUEST;
+        return SURFACE_ERROR_INVALID_REQUEST;
     }
     return g_ipcMsgHandleList[code](this, ipcMsg, io);
 }

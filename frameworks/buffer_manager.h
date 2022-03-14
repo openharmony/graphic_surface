@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -45,7 +45,7 @@ public:
      * @brief Allocate buffer for producer.
      * @param [in] size, alloc buffer size.
      * @param [in] usage, alloc buffer usage.
-     * @returns buffer poiter.
+     * @returns buffer pointer.
      */
     SurfaceBufferImpl* AllocBuffer(uint32_t size, uint32_t usage);
 
@@ -55,7 +55,7 @@ public:
      * @param [in] height, alloc buffer height.
      * @param [in] format, alloc buffer format.
      * @param [in] usage, alloc buffer usage.
-     * @returns buffer poiter.
+     * @returns buffer pointer.
      */
     SurfaceBufferImpl* AllocBuffer(uint32_t width, uint32_t height, uint32_t format, uint32_t usage);
 
