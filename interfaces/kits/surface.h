@@ -312,6 +312,7 @@ public:
      * @version 1.0
      */
     virtual void UnregisterConsumerListener() = 0;
+
 protected:
     Surface() {}
 };
