@@ -120,7 +120,7 @@ public:
     {
         bufferData_.handle.phyAddr = phyAddr;
     }
-    
+
     /**
      * @brief Get buffer stride, for shared physical memory.
      * @returns The buffer phyAddr.
@@ -357,6 +357,7 @@ public:
      * @brief Clear buffer extra data.
      */
     void ClearExtraData();
+
 private:
     /**
      * Set extra data for buffer, like <key,value>.
