@@ -265,7 +265,7 @@ void SurfaceImpl::WriteIoIpcIo(IpcIo& io)
 
 int32_t SurfaceImpl::IpcRequestHandler(const IpcContext* context, void* ipcMsg, IpcIo* io, void* arg)
 {
-    BufferQueueProducer* product = (BufferQueueProducer*) arg;
+    BufferQueueProducer* product = reinterpret_cast<BufferQueueProducer*>(arg);
     return product->OnIpcMsg(ipcMsg, io);
 }
 
@@ -281,7 +281,7 @@ int32_t SurfaceImpl::DoIpcMsg(void* ipcMsg, IpcIo* io)
 Surface* SurfaceImpl::GenericSurfaceByIpcIo(IpcIo& io)
 {
     SvcIdentity* sid = IpcIoPopSvc(&io);
-    if (sid != NULL) {
+    if (sid != nullptr) {
         SurfaceImpl* surface = new SurfaceImpl(*sid);
 #ifdef __LINUX__
         BinderAcquire(sid->ipcContext, sid->handle);

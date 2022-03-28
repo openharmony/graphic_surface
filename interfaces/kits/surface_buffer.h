@@ -145,6 +145,7 @@ public:
      * @version 1.0
      */
     virtual int32_t GetInt64(uint32_t key, int64_t& value) = 0;
+
 protected:
     SurfaceBuffer() {}
     virtual ~SurfaceBuffer() {}

@@ -195,6 +195,7 @@ public:
      * @returns Whether init or not.
      */
     bool Init();
+
 private:
     bool CanRequest(uint8_t wait);
     int32_t isValidAttr(uint32_t width, uint32_t height, uint32_t format, uint32_t strideAlignment);

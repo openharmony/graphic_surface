@@ -173,6 +173,7 @@ public:
      * @returns value refers to the key.
      */
     std::string GetUserData(const std::string& key) override;
+
 private:
     uint32_t GetAttr(uint32_t code);
     void SetAttr(uint32_t code, uint32_t value);
