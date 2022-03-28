@@ -194,11 +194,12 @@ public:
 
     /**
      * @brief Deal with the ipc msg from BufferClientProducer.
-     * @param [in] ipcMsg, ipc msg, constains request code...
-     * @param [in] IpcIo pointer, ipc msg object, constains request attr...
+     * @param [in] ipcMsg, ipc msg, contains request code...
+     * @param [in] IpcIo pointer, ipc msg object, contains request attr...
      * @returns 0 is succeed; other is failed.
      */
     int32_t OnIpcMsg(void *ipcMsg, IpcIo *io);
+
 private:
     BufferQueue* bufferQueue_;
     IBufferConsumerListener* consumerListener_;

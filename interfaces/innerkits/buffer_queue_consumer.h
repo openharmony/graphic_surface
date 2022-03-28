@@ -25,7 +25,7 @@ namespace OHOS {
  */
 class BufferQueueConsumer {
 public:
-    BufferQueueConsumer(BufferQueue& bufferQueue);
+    explicit BufferQueueConsumer(BufferQueue& bufferQueue);
     /**
      * @brief BufferQueueConsumer Destructor. Free all buffers.
      */
@@ -51,6 +51,7 @@ public:
      * @param [in] Buffer Queue pointer, Which buffer need to release.
      */
     void SetBufferQueue(BufferQueue* bufferQueue);
+
 private:
     BufferQueue* bufferQueue_;
 };

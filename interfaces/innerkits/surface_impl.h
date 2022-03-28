@@ -223,13 +223,14 @@ public:
      * @returns Init succeed return true, else return false.
      */
     bool Init();
+
 private:
     /**
      * @brief SurfaceImpl Constructor, used for producer on multi process.
      * @param [in] SvcIdentity. Consumer sid, ipc sending request param.
      * @returns Surface pointer.
      */
-    SurfaceImpl(const SvcIdentity& sid);
+    explicit SurfaceImpl(const SvcIdentity& sid);
     static int32_t IpcRequestHandler(const IpcContext* context, void* ipcMsg, IpcIo* io, void* arg);
     SvcIdentity sid_;
     BufferQueueConsumer* consumer_;

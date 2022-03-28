@@ -34,7 +34,7 @@ int32_t SurfaceBufferImpl::SetInt32(uint32_t key, int32_t value)
 int32_t SurfaceBufferImpl::GetInt32(uint32_t key, int32_t& value)
 {
     uint8_t type = BUFFER_DATA_TYPE_NONE;
-    void *data = NULL;
+    void *data = nullptr;
     uint8_t size;
     if (GetData(key, &type, &data, &size) != SURFACE_ERROR_OK || type != BUFFER_DATA_TYPE_INT_32) {
         return SURFACE_ERROR_INVALID_PARAM;
@@ -54,7 +54,7 @@ int32_t SurfaceBufferImpl::SetInt64(uint32_t key, int64_t value)
 int32_t SurfaceBufferImpl::GetInt64(uint32_t key, int64_t& value)
 {
     uint8_t type = BUFFER_DATA_TYPE_NONE;
-    void *data = NULL;
+    void *data = nullptr;
     uint8_t size;
     if (GetData(key, &type, &data, &size) != SURFACE_ERROR_OK || type != BUFFER_DATA_TYPE_INT_64) {
         return SURFACE_ERROR_INVALID_PARAM;
@@ -85,12 +85,12 @@ int32_t SurfaceBufferImpl::SetData(uint32_t key, uint8_t type, const void* data,
         extData = iter->second;
         if (size != extData.size) {
             free(extData.value);
-            extData.value = NULL;
+            extData.value = nullptr;
         }
     }
-    if (extData.value == NULL) {
+    if (extData.value == nullptr) {
         extData.value = malloc(size);
-        if (extData.value == NULL) {
+        if (extData.value == nullptr) {
             GRAPHIC_LOGE("Couldn't allocate %zu bytes for ext data", size);
             return SURFACE_ERROR_SYSTEM_ERROR;
         }
@@ -199,7 +199,7 @@ void SurfaceBufferImpl::ClearExtraData()
         for (iter = extDatas_.begin(); iter != extDatas_.end(); ++iter) {
             ExtraData value = iter->second;
             free(value.value);
-            value.value = NULL;
+            value.value = nullptr;
         }
         extDatas_.clear();
     }

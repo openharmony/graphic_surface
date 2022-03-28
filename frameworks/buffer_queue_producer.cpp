@@ -388,7 +388,7 @@ void BufferQueueProducer::UnregisterConsumerListener()
 
 int32_t BufferQueueProducer::OnIpcMsg(void *ipcMsg, IpcIo *io)
 {
-    if (ipcMsg == NULL || io == NULL) {
+    if (ipcMsg == nullptr || io == nullptr) {
         GRAPHIC_LOGW("Invalid parameter, null pointer");
         return SURFACE_ERROR_INVALID_PARAM;
     }

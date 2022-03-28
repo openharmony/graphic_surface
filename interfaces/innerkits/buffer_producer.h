@@ -57,7 +57,7 @@ public:
     /**
      * @brief Surface Buffer Producer Destructor.
      */
-    virtual ~BufferProducer() {};
+    virtual ~BufferProducer() {}
 
     /**
      * @brief Request buffer. Surface producer requests buffer.
