@@ -61,7 +61,7 @@ For details, see  [WMS](en-us_topic_0000001122925147.md).
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
-[Graphic subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/graphics-subsystem.md)
+[Graphic subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/graphics.md)
 
 [graphic_wms](https://gitee.com/openharmony/graphic_wms/blob/master/README.md)
 
