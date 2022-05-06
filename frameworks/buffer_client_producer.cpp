@@ -14,10 +14,7 @@
  */
 
 #include "buffer_client_producer.h"
-
-#include "liteipc_adapter.h"
-#include "liteipc_adapter.h"
-#include "serializer.h"
+#include "ipc_skeleton.h"
 
 #include "buffer_common.h"
 #include "buffer_manager.h"
@@ -39,18 +36,20 @@ SurfaceBufferImpl* BufferClientProducer::RequestBuffer(uint8_t wait)
     IpcIo requestIo;
     uint8_t requestIoData[DEFAULT_IPC_SIZE];
     IpcIoInit(&requestIo, requestIoData, DEFAULT_IPC_SIZE, 0);
-    IpcIoPushUint8(&requestIo, wait);
+    WriteUint8(&requestIo, wait);
     IpcIo reply;
     uintptr_t ptr;
-    int32_t ret = Transact(nullptr, sid_, REQUEST_BUFFER, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    MessageOption option;
+    MessageOptionInit(&option);
+    int32_t ret = SendRequest(sid_, REQUEST_BUFFER, &requestIo, &reply, option, &ptr);
     if (ret != 0) {
-        GRAPHIC_LOGW("RequestBuffer Transact failed");
+        GRAPHIC_LOGW("RequestBuffer SendRequest failed");
         return nullptr;
     }
-    ret = IpcIoPopInt32(&reply);
+    ReadInt32(&reply, &ret);
     if (ret != 0) {
         GRAPHIC_LOGW("RequestBuffer generic failed code=%d", ret);
-        FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+        FreeBuffer(reinterpret_cast<void *>(ptr));
         return nullptr;
     }
 
@@ -60,16 +59,16 @@ SurfaceBufferImpl* BufferClientProducer::RequestBuffer(uint8_t wait)
     if (manager == nullptr) {
         GRAPHIC_LOGW("BufferManager is null, usage(%d)", buffer->GetUsage());
         delete buffer;
-        FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+        FreeBuffer(reinterpret_cast<void *>(ptr));
         return nullptr;
     }
 
     if (!manager->MapBuffer(*buffer)) {
         Cancel(buffer);
-        FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+        FreeBuffer(reinterpret_cast<void *>(ptr));
         return nullptr;
     }
-    FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+    FreeBuffer(reinterpret_cast<void *>(ptr));
     return buffer;
 }
 
@@ -92,13 +91,15 @@ int32_t BufferClientProducer::FlushBuffer(SurfaceBufferImpl* buffer)
     buffer->WriteToIpcIo(requestIo);
     IpcIo reply;
     uintptr_t ptr;
-    ret = Transact(nullptr, sid_, FLUSH_BUFFER, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    MessageOption option;
+    MessageOptionInit(&option);
+    ret = SendRequest(sid_, FLUSH_BUFFER, &requestIo, &reply, option, &ptr);
     if (ret != SURFACE_ERROR_OK) {
         GRAPHIC_LOGW("FlushBuffer failed");
         return ret;
     }
-    ret = IpcIoPopInt32(&reply);
-    FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+    ReadInt32(&reply, &ret);
+    FreeBuffer(reinterpret_cast<void *>(ptr));
     if (ret != SURFACE_ERROR_OK) {
         GRAPHIC_LOGW("FlushBuffer failed code=%d", ret);
         return -1;
@@ -119,11 +120,13 @@ void BufferClientProducer::Cancel(SurfaceBufferImpl* buffer)
     buffer->WriteToIpcIo(requestIo);
     IpcIo reply;
     uintptr_t ptr;
-    int32_t ret = Transact(nullptr, sid_, CANCEL_BUFFER, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    MessageOption option;
+    MessageOptionInit(&option);
+    int32_t ret = SendRequest(sid_, CANCEL_BUFFER, &requestIo, &reply, option, &ptr);
     if (ret != SURFACE_ERROR_OK) {
         GRAPHIC_LOGW("Cancel buffer failed");
     } else {
-        FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+        FreeBuffer(reinterpret_cast<void *>(ptr));
     }
     BufferManager* manager = BufferManager::GetInstance();
     RETURN_IF_FAIL(manager);
@@ -136,14 +139,16 @@ void BufferClientProducer::SetQueueSize(uint8_t queueSize)
     IpcIo requestIo;
     uint8_t requestIoData[DEFAULT_IPC_SIZE];
     IpcIoInit(&requestIo, requestIoData, DEFAULT_IPC_SIZE, 0);
-    IpcIoPushUint8(&requestIo, queueSize);
+    WriteUint8(&requestIo, queueSize);
     IpcIo reply;
     uintptr_t ptr;
-    int32_t ret = Transact(nullptr, sid_, SET_QUEUE_SIZE, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    MessageOption option;
+    MessageOptionInit(&option);
+    int32_t ret = SendRequest(sid_, SET_QUEUE_SIZE, &requestIo, &reply, option, &ptr);
     if (ret != SURFACE_ERROR_OK) {
         GRAPHIC_LOGW("Set Attr(%d:%u) failed", SET_QUEUE_SIZE, queueSize);
     }
-    FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+    FreeBuffer(reinterpret_cast<void *>(ptr));
 }
 
 uint8_t BufferClientProducer::GetQueueSize()
@@ -153,19 +158,22 @@ uint8_t BufferClientProducer::GetQueueSize()
     IpcIoInit(&requestIo, requestIoData, DEFAULT_IPC_SIZE, 0);
     IpcIo reply;
     uintptr_t ptr;
-    int32_t ret = Transact(nullptr, sid_, GET_QUEUE_SIZE, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    MessageOption option;
+    MessageOptionInit(&option);
+    int32_t ret = SendRequest(sid_, GET_QUEUE_SIZE, &requestIo, &reply, option, &ptr);
     if (ret != SURFACE_ERROR_OK) {
-        GRAPHIC_LOGW("GetAttr Transact failed, errno=%d", ret);
+        GRAPHIC_LOGW("GetAttr SendRequest failed, errno=%d", ret);
         return 0;
     }
-    ret = IpcIoPopInt32(&reply);
+    ReadInt32(&reply, &ret);
     if (ret != SURFACE_ERROR_OK) {
         GRAPHIC_LOGW("GetAttr failed code=%d", GET_QUEUE_SIZE);
-        FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+        FreeBuffer(reinterpret_cast<void *>(ptr));
         return 0;
     }
-    uint8_t queueSize = IpcIoPopUint8(&reply);
-    FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+    uint8_t queueSize;
+    ReadUint8(&reply, &queueSize);
+    FreeBuffer(reinterpret_cast<void *>(ptr));
     return queueSize;
 }
 
@@ -174,15 +182,17 @@ void BufferClientProducer::SetWidthAndHeight(uint32_t width, uint32_t height)
     IpcIo requestIo;
     uint8_t requestIoData[DEFAULT_IPC_SIZE];
     IpcIoInit(&requestIo, requestIoData, DEFAULT_IPC_SIZE, 0);
-    IpcIoPushUint32(&requestIo, width);
-    IpcIoPushUint32(&requestIo, height);
+    WriteUint32(&requestIo, width);
+    WriteUint32(&requestIo, height);
     IpcIo reply;
     uintptr_t ptr;
-    int32_t ret = Transact(nullptr, sid_, SET_WIDTH_AND_HEIGHT, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    MessageOption option;
+    MessageOptionInit(&option);
+    int32_t ret = SendRequest(sid_, SET_WIDTH_AND_HEIGHT, &requestIo, &reply, option, &ptr);
     if (ret != SURFACE_ERROR_OK) {
         GRAPHIC_LOGW("SetWidthAndHeight failed");
     } else {
-        FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+        FreeBuffer(reinterpret_cast<void *>(ptr));
     }
     return;
 }
@@ -248,15 +258,17 @@ void BufferClientProducer::SetUserData(const std::string& key, const std::string
     IpcIo requestIo;
     uint8_t requestIoData[DEFAULT_IPC_SIZE];
     IpcIoInit(&requestIo, requestIoData, DEFAULT_IPC_SIZE, 0);
-    IpcIoPushString(&requestIo, key.c_str());
-    IpcIoPushString(&requestIo, value.c_str());
+    WriteString(&requestIo, key.c_str());
+    WriteString(&requestIo, value.c_str());
     IpcIo reply;
     uintptr_t ptr;
-    int32_t ret = Transact(nullptr, sid_, SET_USER_DATA, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    MessageOption option;
+    MessageOptionInit(&option);
+    int32_t ret = SendRequest(sid_, SET_USER_DATA, &requestIo, &reply, option, &ptr);
     if (ret != SURFACE_ERROR_OK) {
         GRAPHIC_LOGW("Get user data(%s) failed", key.c_str());
     } else {
-        FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+        FreeBuffer(reinterpret_cast<void *>(ptr));
     }
 }
 
@@ -266,21 +278,23 @@ std::string BufferClientProducer::GetUserData(const std::string& key)
     IpcIo requestIo;
     uint8_t requestIoData[DEFAULT_IPC_SIZE];
     IpcIoInit(&requestIo, requestIoData, DEFAULT_IPC_SIZE, 0);
-    IpcIoPushString(&requestIo, key.c_str());
+    WriteString(&requestIo, key.c_str());
     IpcIo reply;
     uintptr_t ptr;
-    int32_t ret = Transact(nullptr, sid_, GET_USER_DATA, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    MessageOption option;
+    MessageOptionInit(&option);
+    int32_t ret = SendRequest(sid_, GET_USER_DATA, &requestIo, &reply, option, &ptr);
     if (ret != SURFACE_ERROR_OK) {
         return sValue;
     } else {
         size_t len = 0;
-        const char* value = reinterpret_cast<char *>(IpcIoPopString(&reply, &len));
+        const char* value = reinterpret_cast<char *>(ReadString(&reply, &len));
         if (value == nullptr || len == 0) {
             GRAPHIC_LOGW("Get user data failed");
         } else {
             sValue = value;
         }
-        FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+        FreeBuffer(reinterpret_cast<void *>(ptr));
         return sValue;
     }
 }
@@ -290,14 +304,16 @@ void BufferClientProducer::SetAttr(uint32_t code, uint32_t value)
     IpcIo requestIo;
     uint8_t requestIoData[DEFAULT_IPC_SIZE];
     IpcIoInit(&requestIo, requestIoData, DEFAULT_IPC_SIZE, 0);
-    IpcIoPushUint32(&requestIo, value);
+    WriteUint32(&requestIo, value);
     IpcIo reply;
     uintptr_t ptr;
-    int32_t ret = Transact(nullptr, sid_, code, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    MessageOption option;
+    MessageOptionInit(&option);
+    int32_t ret = SendRequest(sid_, code, &requestIo, &reply, option, &ptr);
     if (ret != SURFACE_ERROR_OK) {
         GRAPHIC_LOGW("Set Attr(%u:%u) failed", code, value);
     } else {
-        FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+        FreeBuffer(reinterpret_cast<void *>(ptr));
     }
 }
 
@@ -308,19 +324,22 @@ uint32_t BufferClientProducer::GetAttr(uint32_t code)
     IpcIoInit(&requestIo, requestIoData, DEFAULT_IPC_SIZE, 0);
     IpcIo reply;
     uintptr_t ptr;
-    int32_t ret = Transact(nullptr, sid_, code, &requestIo, &reply, LITEIPC_FLAG_DEFAULT, &ptr);
+    MessageOption option;
+    MessageOptionInit(&option);
+    int32_t ret = SendRequest(sid_, code, &requestIo, &reply, option, &ptr);
     if (ret != SURFACE_ERROR_OK) {
-        GRAPHIC_LOGW("GetAttr Transact failed, errno=%d", ret);
+        GRAPHIC_LOGW("GetAttr SendRequest failed, errno=%d", ret);
         return 0;
     }
-    ret = IpcIoPopInt32(&reply);
+    ReadInt32(&reply, &ret);
     if (ret != SURFACE_ERROR_OK) {
         GRAPHIC_LOGW("GetAttr failed code=%d", code);
-        FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+        FreeBuffer(reinterpret_cast<void *>(ptr));
         return 0;
     }
-    uint32_t attr = IpcIoPopUint32(&reply);
-    FreeBuffer(nullptr, reinterpret_cast<void *>(ptr));
+    uint32_t attr;
+    ReadUint32(&reply, &attr);
+    FreeBuffer(reinterpret_cast<void *>(ptr));
     return attr;
 }
 } // end namespace

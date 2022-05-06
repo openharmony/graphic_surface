@@ -46,11 +46,9 @@ SurfaceImpl::~SurfaceImpl()
         delete producer_;
         producer_ = nullptr;
     }
-#ifdef __LINUX__
     if (sid_.handle != 0) {
-        BinderRelease(sid_.ipcContext, sid_.handle);
+        ReleaseSvc(sid_);
     }
-#endif
 }
 
 bool SurfaceImpl::Init()
@@ -85,17 +83,12 @@ bool SurfaceImpl::Init()
             producer_ = nullptr;
             return false;
         }
-        SvcIdentity svc;
-        int32_t ret = RegisterIpcCallback(IpcRequestHandler, 0, IPC_WAIT_FOREVER, &svc, producer_);
-        if (ret != LITEIPC_OK) {
-            GRAPHIC_LOGE("Surface RegisterIpcCallback failed.");
-            delete consumer_;
-            consumer_ = nullptr;
-            delete producer_;
-            producer_ = nullptr;
-            return false;
-        }
-        sid_ = svc;
+        objectStub_.func = IpcRequestHandler;
+        objectStub_.args = reinterpret_cast<void*>(producer_);
+        objectStub_.isRemote = false;
+        sid_.handle = IPC_INVALID_HANDLE;
+        sid_.token  = SERVICE_TYPE_ANONYMOUS;
+        sid_.cookie = reinterpret_cast<uintptr_t>(&objectStub_);
     } else {
         producer_ = new BufferClientProducer(sid_);
         if (producer_ == nullptr) {
@@ -260,37 +253,32 @@ void SurfaceImpl::UnregisterConsumerListener()
 
 void SurfaceImpl::WriteIoIpcIo(IpcIo& io)
 {
-    IpcIoPushSvc(&io, &sid_);
+    WriteRemoteObject(&io, &sid_);
 }
 
-int32_t SurfaceImpl::IpcRequestHandler(const IpcContext* context, void* ipcMsg, IpcIo* io, void* arg)
+int32_t SurfaceImpl::IpcRequestHandler(uint32_t code, IpcIo* data, IpcIo* reply, MessageOption option)
 {
-    BufferQueueProducer* product = reinterpret_cast<BufferQueueProducer*>(arg);
-    return product->OnIpcMsg(ipcMsg, io);
+    BufferQueueProducer* product = reinterpret_cast<BufferQueueProducer*>(option.args);
+    return product->OnIpcMsg(code, data, reply, option);
 }
 
-int32_t SurfaceImpl::DoIpcMsg(void* ipcMsg, IpcIo* io)
+int32_t SurfaceImpl::DoIpcMsg(uint32_t code, IpcIo* data, IpcIo* reply, MessageOption option)
 {
     RETURN_VAL_IF_FAIL(producer_, SURFACE_ERROR_INVALID_PARAM);
-    RETURN_VAL_IF_FAIL(ipcMsg != nullptr, SURFACE_ERROR_INVALID_PARAM);
-    RETURN_VAL_IF_FAIL(io != nullptr, SURFACE_ERROR_INVALID_PARAM);
+    RETURN_VAL_IF_FAIL(data != nullptr, SURFACE_ERROR_INVALID_PARAM);
     BufferQueueProducer* bufferQueueProducer = reinterpret_cast<BufferQueueProducer*>(producer_);
-    return bufferQueueProducer->OnIpcMsg(ipcMsg, io);
+    return bufferQueueProducer->OnIpcMsg(code, data, reply, option);
 }
 
 Surface* SurfaceImpl::GenericSurfaceByIpcIo(IpcIo& io)
 {
-    SvcIdentity* sid = IpcIoPopSvc(&io);
-    if (sid != nullptr) {
-        SurfaceImpl* surface = new SurfaceImpl(*sid);
-#ifdef __LINUX__
-        BinderAcquire(sid->ipcContext, sid->handle);
-        free(sid);
-        sid = nullptr;
-#endif
+    SvcIdentity sid;
+    bool ret = ReadRemoteObject(&io, &sid);
+    if (ret) {
+        SurfaceImpl* surface = new SurfaceImpl(sid);
         if (surface != nullptr) {
             if (surface->Init()) {
-                return surface;
+                return reinterpret_cast<Surface *>(surface);
             } else {
                 GRAPHIC_LOGE("surface init failed");
                 delete surface;

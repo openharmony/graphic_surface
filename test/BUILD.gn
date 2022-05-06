@@ -23,7 +23,7 @@ if (ohos_build_type == "debug") {
     output_dir = "$root_out_dir/test/unittest/graphic"
     sources = [ "unittest/graphic_surface_test.cpp" ]
     deps = [
-      "//foundation/communication/ipc_lite:liteipc_adapter",
+      "//foundation/communication/ipc/interfaces/innerkits/c/ipc:ipc_single",
       "//foundation/graphic/surface:surface",
     ]
   }
