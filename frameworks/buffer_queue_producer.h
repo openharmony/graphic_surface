@@ -198,8 +198,7 @@ public:
      * @param [in] IpcIo pointer, ipc msg object, contains request attr...
      * @returns 0 is succeed; other is failed.
      */
-    int32_t OnIpcMsg(void *ipcMsg, IpcIo *io);
-
+    int32_t OnIpcMsg(uint32_t code, IpcIo *data, IpcIo *reply, MessageOption option);
 private:
     BufferQueue* bufferQueue_;
     IBufferConsumerListener* consumerListener_;

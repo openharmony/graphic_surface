@@ -216,7 +216,7 @@ public:
      * @param [in] IpcIo pointer, ipc msg object, constains request attr...
      * @returns 0 is succeed; other is failed.
      */
-    int32_t DoIpcMsg(void* ipcMsg, IpcIo* io);
+    int32_t DoIpcMsg(uint32_t code, IpcIo* data, IpcIo* reply, MessageOption option);
 
     /**
      * @brief Surface init succeed or not
@@ -230,9 +230,10 @@ private:
      * @param [in] SvcIdentity. Consumer sid, ipc sending request param.
      * @returns Surface pointer.
      */
-    explicit SurfaceImpl(const SvcIdentity& sid);
-    static int32_t IpcRequestHandler(const IpcContext* context, void* ipcMsg, IpcIo* io, void* arg);
+    SurfaceImpl(const SvcIdentity& sid);
+    static int32_t IpcRequestHandler(uint32_t code, IpcIo* data, IpcIo* reply, MessageOption option);
     SvcIdentity sid_;
+    IpcObjectStub objectStub_;
     BufferQueueConsumer* consumer_;
     BufferProducer* producer_;
     bool IsConsumer_;

@@ -16,9 +16,10 @@
 #ifndef GRAPHIC_LITE_BUFFER_CLIENT_PRODUCER_H
 #define GRAPHIC_LITE_BUFFER_CLIENT_PRODUCER_H
 
+#include <pthread.h>
 #include "buffer_producer.h"
 #include "buffer_queue.h"
-#include "liteipc_adapter.h"
+#include "ipc_skeleton.h"
 #include "serializer.h"
 #include "surface_buffer.h"
 namespace OHOS {
@@ -178,6 +179,7 @@ private:
     uint32_t GetAttr(uint32_t code);
     void SetAttr(uint32_t code, uint32_t value);
     SvcIdentity sid_;
+    IpcObjectStub objectStub_;
 };
 } // end namespace
 

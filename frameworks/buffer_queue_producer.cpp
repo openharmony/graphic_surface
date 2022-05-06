@@ -24,168 +24,156 @@ namespace OHOS {
 const int32_t DEFAULT_IPC_SIZE = 100;
 
 extern "C" {
-typedef int32_t (*IpcMsgHandle)(BufferQueueProducer* product, void *ipcMsg, IpcIo *io);
+typedef int32_t (*IpcMsgHandle)(BufferQueueProducer* product, IpcIo *io, IpcIo *reply);
 };
 
-static int32_t OnRequestBuffer(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnRequestBuffer(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    uint8_t isWaiting = IpcIoPopUint8(io);
+    uint8_t isWaiting;
+    ReadUint8(io, &isWaiting);
     SurfaceBufferImpl* buffer = product->RequestBuffer(isWaiting);
-    IpcIo reply;
-    uint8_t tmpData[DEFAULT_IPC_SIZE];
-    IpcIoInit(&reply, tmpData, DEFAULT_IPC_SIZE, 1);
     uint32_t ret = -1;
     if (buffer == nullptr) {
         GRAPHIC_LOGW("get buffer failed");
-        IpcIoPushInt32(&reply, -1);
+        WriteInt32(reply, -1);
         ret = -1;
     } else {
-        IpcIoPushInt32(&reply, 0);
-        buffer->WriteToIpcIo(reply);
+        WriteInt32(reply, 0);
+        buffer->WriteToIpcIo(*reply);
         ret = 0;
     }
-    SendReply(nullptr, ipcMsg, &reply);
     return ret;
 }
 
-static int32_t OnFlushBuffer(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnFlushBuffer(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    IpcIo reply;
-    uint8_t tmpData[DEFAULT_IPC_SIZE];
-    IpcIoInit(&reply, tmpData, DEFAULT_IPC_SIZE, 1);
     SurfaceBufferImpl buffer;
     buffer.ReadFromIpcIo(*io);
-    IpcIoPushInt32(&reply, product->EnqueueBuffer(buffer));
-    SendReply(nullptr, ipcMsg, &reply);
+    WriteInt32(reply, product->EnqueueBuffer(buffer));
     return 0;
 }
 
-static int32_t OnCancelBuffer(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnCancelBuffer(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
     SurfaceBufferImpl buffer;
     buffer.ReadFromIpcIo(*io);
     product->Cancel(&buffer);
-    IpcIo reply;
-    uint8_t tmpData[DEFAULT_IPC_SIZE];
-    IpcIoInit(&reply, tmpData, DEFAULT_IPC_SIZE, 1);
-    IpcIoPushInt32(&reply, 0);
-    SendReply(nullptr, ipcMsg, &reply);
+    WriteInt32(reply, 0);
     return 0;
 }
 
-static int32_t OnGetAttr(uint32_t attr, void *ipcMsg, IpcIo *io)
+static int32_t OnGetAttr(uint32_t attr, IpcIo *io, IpcIo *reply)
 {
-    IpcIo reply;
-    uint8_t tmpData[DEFAULT_IPC_SIZE];
-    IpcIoInit(&reply, tmpData, DEFAULT_IPC_SIZE, 1);
-    IpcIoPushInt32(&reply, 0);
-    IpcIoPushUint32(&reply, attr);
-    SendReply(nullptr, ipcMsg, &reply);
+    WriteInt32(reply, 0);
+    WriteUint32(reply, attr);
     return 0;
 }
 
-static int32_t OnSendReply(void *ipcMsg, IpcIo *io)
+static int32_t OnSendReply(IpcIo *io, IpcIo *reply)
 {
-    IpcIo reply;
-    uint8_t tmpData[DEFAULT_IPC_SIZE];
-    IpcIoInit(&reply, tmpData, DEFAULT_IPC_SIZE, 1);
-    IpcIoPushInt32(&reply, 0);
-    SendReply(nullptr, ipcMsg, &reply);
+    WriteInt32(reply, 0);
     return 0;
 }
 
-static int32_t OnSetQueueSize(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnSetQueueSize(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    uint32_t queueSize = IpcIoPopUint32(io);
+    uint32_t queueSize;
+    ReadUint32(io, &queueSize);
     product->SetQueueSize(queueSize);
-    return OnSendReply(ipcMsg, io);
+    return OnSendReply(io, reply);
 }
 
-static int32_t OnGetQueueSize(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnGetQueueSize(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    return OnGetAttr(product->GetQueueSize(), ipcMsg, io);
+    return OnGetAttr(product->GetQueueSize(), io, reply);
 }
 
-static int32_t OnSetWidthAndHeight(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnSetWidthAndHeight(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    uint32_t width = IpcIoPopUint32(io);
-    uint32_t height = IpcIoPopUint32(io);
+    uint32_t width;
+    ReadUint32(io, &width);
+    uint32_t height;
+    ReadUint32(io, &height);
     product->SetWidthAndHeight(width, height);
-    return OnSendReply(ipcMsg, io);
+    return OnSendReply(io, reply);
 }
 
-static int32_t OnGetWidth(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnGetWidth(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    return OnGetAttr(product->GetWidth(), ipcMsg, io);
+    return OnGetAttr(product->GetWidth(), io, reply);
 }
 
-static int32_t OnGetHeight(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnGetHeight(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    return OnGetAttr(product->GetHeight(), ipcMsg, io);
+    return OnGetAttr(product->GetHeight(), io, reply);
 }
 
-static int32_t OnSetFormat(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnSetFormat(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    uint32_t format = IpcIoPopUint32(io);
+    uint32_t format;
+    ReadUint32(io, &format);
     product->SetFormat(format);
-    return OnSendReply(ipcMsg, io);
+    return OnSendReply(io, reply);
 }
 
-static int32_t OnGetFormat(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnGetFormat(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    return OnGetAttr(product->GetFormat(), ipcMsg, io);
+    return OnGetAttr(product->GetFormat(), io, reply);
 }
 
-static int32_t OnSetStrideAlignment(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnSetStrideAlignment(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    uint32_t strideAlignment = IpcIoPopUint32(io);
+    uint32_t strideAlignment;
+    ReadUint32(io, &strideAlignment);
     product->SetStrideAlignment(strideAlignment);
-    return OnSendReply(ipcMsg, io);
+    return OnSendReply(io, reply);
 }
 
-static int32_t GetStrideAlignment(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t GetStrideAlignment(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    return OnGetAttr(product->GetStrideAlignment(), ipcMsg, io);
+    return OnGetAttr(product->GetStrideAlignment(), io, reply);
 }
 
-static int32_t OnGetStride(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnGetStride(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    return OnGetAttr(product->GetStride(), ipcMsg, io);
+    return OnGetAttr(product->GetStride(), io, reply);
 }
 
-static int32_t OnSetSize(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnSetSize(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    uint32_t size = IpcIoPopUint32(io);
+    uint32_t size;
+    ReadUint32(io, &size);
     product->SetSize(size);
-    return OnSendReply(ipcMsg, io);
+    return OnSendReply(io, reply);
 }
 
-static int32_t OnGetSize(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnGetSize(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    return OnGetAttr(product->GetSize(), ipcMsg, io);
+    return OnGetAttr(product->GetSize(), io, reply);
 }
 
-static int32_t OnSetUsage(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnSetUsage(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    uint32_t usage = IpcIoPopUint32(io);
+    uint32_t usage;
+    ReadUint32(io, &usage);
     product->SetUsage(usage);
-    return OnSendReply(ipcMsg, io);
+    return OnSendReply(io, reply);
 }
 
-static int32_t OnGetUsage(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnGetUsage(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
-    return OnGetAttr(product->GetUsage(), ipcMsg, io);
+    return OnGetAttr(product->GetUsage(), io, reply);
 }
 
-static int32_t OnSetUserData(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnSetUserData(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
     size_t len = 0;
-    const char* key = reinterpret_cast<char *>(IpcIoPopString(io, &len));
+    const char* key = reinterpret_cast<char *>(ReadString(io, &len));
     if (key == nullptr || len == 0) {
         GRAPHIC_LOGW("Get user data key failed");
         return -1;
     }
-    const char* value = reinterpret_cast<char *>(IpcIoPopString(io, &len));
+    const char* value = reinterpret_cast<char *>(ReadString(io, &len));
     if (value == nullptr || len == 0) {
         GRAPHIC_LOGW("Get user data value failed");
         return -1;
@@ -193,25 +181,21 @@ static int32_t OnSetUserData(BufferQueueProducer* product, void *ipcMsg, IpcIo *
     std::string sKey = key;
     std::string sValue = value;
     product->SetUserData(sKey, sValue);
-    OnSendReply(ipcMsg, io);
+    OnSendReply(io, reply);
     return 0;
 }
 
-static int32_t OnGetUserData(BufferQueueProducer* product, void *ipcMsg, IpcIo *io)
+static int32_t OnGetUserData(BufferQueueProducer* product, IpcIo *io, IpcIo *reply)
 {
     size_t len = 0;
-    const char* key = reinterpret_cast<char *>(IpcIoPopString(io, &len));
+    const char* key = reinterpret_cast<char *>(ReadString(io, &len));
     if (key == nullptr || len == 0) {
         GRAPHIC_LOGW("Get user data key failed");
         return -1;
     }
     std::string sKey = key;
     std::string value = product->GetUserData(sKey);
-    IpcIo reply;
-    uint8_t tmpData[DEFAULT_IPC_SIZE];
-    IpcIoInit(&reply, tmpData, DEFAULT_IPC_SIZE, 0);
-    IpcIoPushString(&reply, value.c_str());
-    SendReply(nullptr, ipcMsg, &reply);
+    WriteString(reply, value.c_str());
     return 0;
 }
 
@@ -386,20 +370,18 @@ void BufferQueueProducer::UnregisterConsumerListener()
     consumerListener_ = nullptr;
 }
 
-int32_t BufferQueueProducer::OnIpcMsg(void *ipcMsg, IpcIo *io)
+int32_t BufferQueueProducer::OnIpcMsg(uint32_t code, IpcIo *data, IpcIo *reply, MessageOption option)
 {
-    if (ipcMsg == nullptr || io == nullptr) {
+    if (data == NULL) {
         GRAPHIC_LOGW("Invalid parameter, null pointer");
         return SURFACE_ERROR_INVALID_PARAM;
     }
-    uint32_t code;
-    (void)GetCode(ipcMsg, &code);
+
     if (code >= MAX_REQUEST_CODE) {
         GRAPHIC_LOGW("Resquest code(%u) does not support.", code);
-        FreeBuffer(nullptr, ipcMsg);
         return SURFACE_ERROR_INVALID_REQUEST;
     }
-    return g_ipcMsgHandleList[code](this, ipcMsg, io);
+    return g_ipcMsgHandleList[code](this, data, reply);
 }
 
 void BufferQueueProducer::SetUserData(const std::string& key, const std::string& value)
