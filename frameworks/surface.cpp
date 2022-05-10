@@ -22,7 +22,7 @@ Surface* Surface::CreateSurface()
     SurfaceImpl* surface = new SurfaceImpl();
     if (surface != nullptr) {
         if (surface->Init()) {
-            return surface;
+            return reinterpret_cast<Surface *>(surface);
         } else {
             GRAPHIC_LOGE("surface init failed");
             delete surface;
