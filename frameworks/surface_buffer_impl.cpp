@@ -14,7 +14,6 @@
  */
 
 #include "surface_buffer_impl.h"
-
 #include "securec.h"
 
 namespace OHOS {
@@ -125,26 +124,31 @@ int32_t SurfaceBufferImpl::GetData(uint32_t key, uint8_t* type, void** data, uin
 
 void SurfaceBufferImpl::ReadFromIpcIo(IpcIo& io)
 {
-    bufferData_.handle.key =  IpcIoPopInt32(&io);
-    bufferData_.handle.phyAddr = IpcIoPopUint64(&io);
-    bufferData_.handle.reserveFds =  IpcIoPopUint32(&io);
-    bufferData_.handle.reserveInts = IpcIoPopUint32(&io);
-    bufferData_.size = IpcIoPopUint32(&io);
-    bufferData_.usage = IpcIoPopUint32(&io);
-    len_ = IpcIoPopUint32(&io);
-    uint32_t extDataSize = IpcIoPopUint32(&io);
+    ReadInt32(&io, &(bufferData_.handle.key));
+    ReadUint64(&io, &(bufferData_.handle.phyAddr));
+    ReadUint32(&io, &(bufferData_.handle.reserveFds));
+    ReadUint32(&io, &(bufferData_.handle.reserveInts));
+    ReadUint32(&io, &(bufferData_.size));
+    ReadUint32(&io, &(bufferData_.usage));
+    ReadUint32(&io, &len_);
+    uint32_t extDataSize;
+    ReadUint32(&io, &extDataSize);
     if (extDataSize > 0 && extDataSize < MAX_USER_DATA_COUNT) {
         for (uint32_t i = 0; i < extDataSize; i++) {
-            uint32_t key = IpcIoPopUint32(&io);
-            uint32_t type = IpcIoPopUint32(&io);
+            uint32_t key;
+            ReadUint32(&io, &key);
+            uint32_t type;
+            ReadUint32(&io, &type);
             switch (type) {
                 case BUFFER_DATA_TYPE_INT_32: {
-                    int32_t value = IpcIoPopInt32(&io);
+                    int32_t value;
+                    ReadInt32(&io, &value);
                     SetInt32(key, value);
                     break;
                 }
                 case BUFFER_DATA_TYPE_INT_64: {
-                    int64_t value = IpcIoPopInt64(&io);
+                    int64_t value;
+                    ReadInt64(&io, &value);
                     SetInt64(key, value);
                     break;
                 }
@@ -156,27 +160,27 @@ void SurfaceBufferImpl::ReadFromIpcIo(IpcIo& io)
 }
 void SurfaceBufferImpl::WriteToIpcIo(IpcIo& io)
 {
-    IpcIoPushInt32(&io, bufferData_.handle.key);
-    IpcIoPushUint64(&io, bufferData_.handle.phyAddr);
-    IpcIoPushUint32(&io, bufferData_.handle.reserveFds);
-    IpcIoPushUint32(&io, bufferData_.handle.reserveInts);
-    IpcIoPushUint32(&io, bufferData_.size);
-    IpcIoPushUint32(&io, bufferData_.usage);
-    IpcIoPushUint32(&io, len_);
-    IpcIoPushUint32(&io, extDatas_.size());
+    WriteInt32(&io, bufferData_.handle.key);
+    WriteUint64(&io, bufferData_.handle.phyAddr);
+    WriteUint32(&io, bufferData_.handle.reserveFds);
+    WriteUint32(&io, bufferData_.handle.reserveInts);
+    WriteUint32(&io, bufferData_.size);
+    WriteUint32(&io, bufferData_.usage);
+    WriteUint32(&io, len_);
+    WriteUint32(&io, extDatas_.size());
     if (!extDatas_.empty()) {
         std::map<uint32_t, ExtraData>::iterator iter;
         for (iter = extDatas_.begin(); iter != extDatas_.end(); ++iter) {
             uint32_t key = iter->first;
             ExtraData value = iter->second;
-            IpcIoPushUint32(&io, key);
-            IpcIoPushUint32(&io, value.type);
+            WriteUint32(&io, key);
+            WriteUint32(&io, value.type);
             switch (value.type) {
                 case BUFFER_DATA_TYPE_INT_32:
-                    IpcIoPushInt32(&io, *(reinterpret_cast<int32_t *>(value.value)));
+                    WriteInt32(&io, *(reinterpret_cast<int32_t *>(value.value)));
                     break;
                 case BUFFER_DATA_TYPE_INT_64:
-                    IpcIoPushInt64(&io, *(reinterpret_cast<int64_t *>(value.value)));
+                    WriteInt64(&io, *(reinterpret_cast<int64_t *>(value.value)));
                     break;
                 default:
                     break;

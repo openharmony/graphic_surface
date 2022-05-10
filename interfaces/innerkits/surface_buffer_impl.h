@@ -17,9 +17,9 @@
 #define GRAPHIC_LITE_SURFACE_BUFFER_IMPL_H
 
 #include <map>
+#include <pthread.h>
 #include "buffer_common.h"
-#include "liteipc_adapter.h"
-#include "serializer.h"
+#include "ipc_skeleton.h"
 #include "surface_buffer.h"
 
 namespace OHOS {

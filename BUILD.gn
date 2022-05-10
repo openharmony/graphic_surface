@@ -43,7 +43,7 @@ shared_library("surface") {
   public_deps = [ "//foundation/graphic/utils:lite_graphic_utils" ]
   deps = [
     "//drivers/peripheral/display/hal:hdi_display",
-    "//foundation/communication/ipc_lite:liteipc_adapter",
+    "//foundation/communication/ipc/interfaces/innerkits/c/ipc:ipc_single",
     "//third_party/bounds_checking_function:libsec_shared",
   ]
   ldflags = [
