@@ -15,7 +15,7 @@ Surface组件用于管理和传递图形和媒体的共享内存。具体场景�
 
 Surface的跨进程传输使用IPC传输句柄等控制结构（有拷贝），使用共享内存传递图形/媒体数据（零拷贝）。
 
-**图 1**  surface在系统架构中的位置（绿色部分为surface buffer）<a name="fig584223343312"></a>  
+**图 1**  surface(即图中的Screen Buffer)在系统架构中的位置<a name="fig584223343312"></a>  
 ![](figures/surface在系统架构中的位置（绿色部分为surface-buffer）.png "surface在系统架构中的位置（绿色部分为surface-buffer）")
 
 ## 目录<a name="section161941989596"></a>
@@ -57,7 +57,7 @@ hb build lite_surface
 
 ### 使用说明<a name="section129654513264"></a>
 
-可参考图形[图形WMS组件](zh-cn_topic_0000001122925147.md)。
+可参考轻量图形[WMS组件](https://gitee.com/openharmony/graphic_wms/blob/master/README_zh.md)。
 
 ## 相关仓<a name="section1371113476307"></a>
 
