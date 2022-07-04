@@ -15,7 +15,7 @@ A surface is used to manage and transfer the shared memory of graphics and media
 
 A surface transfers data across processes through control structures such as Inter-Process Communication \(IPC\) handles \(with copies\), and transfers graphics and media data \(zero-copy\) through shared memory. The following figure shows the position where a surface works in the system architecture. The elements in green blocks are surface buffers.
 
-**Figure  1**  Position of a surface in the system architecture<a name="fig584223343312"></a>  
+**Figure  1**  Position of a surface (known as Screen buffer in the following figure) in the system architecture<a name="fig584223343312"></a>  
 ![](figures/position-of-a-surface-in-the-system-architecture.png "position-of-a-surface-in-the-system-architecture")
 
 ## Directory Structure<a name="section161941989596"></a>
@@ -57,7 +57,7 @@ The consumer obtains the buffer from the dirty queue, synthesizes graphics data,
 
 ### Usage<a name="section129654513264"></a>
 
-For details, see  [WMS](en-us_topic_0000001122925147.md).
+For details, see lite  [WMS](https://gitee.com/openharmony/graphic_wms/blob/master/README.md).
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
