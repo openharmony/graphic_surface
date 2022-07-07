@@ -23,7 +23,6 @@
       ],
       "components": [
         "hilog_lite",
-        "ipc_lite",
         "peripheral_display",
         "peripheral_input"
       ]
