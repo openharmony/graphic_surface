@@ -217,9 +217,9 @@ uint32_t BufferClientProducer::GetFormat()
     return GetAttr(GET_FORMAT);
 }
 
-void BufferClientProducer::SetStrideAlignment(uint32_t stride)
+void BufferClientProducer::SetStrideAlignment(uint32_t strideAlignment)
 {
-    SetAttr(SET_STRIDE_ALIGNMENT, stride);
+    SetAttr(SET_STRIDE_ALIGNMENT, strideAlignment);
 }
 
 uint32_t BufferClientProducer::GetStrideAlignment()
