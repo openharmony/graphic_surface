@@ -318,10 +318,10 @@ uint32_t BufferQueueProducer::GetFormat()
     return bufferQueue_->GetFormat();
 }
 
-void BufferQueueProducer::SetStrideAlignment(uint32_t stride)
+void BufferQueueProducer::SetStrideAlignment(uint32_t strideAlignment)
 {
     RETURN_IF_FAIL(bufferQueue_);
-    bufferQueue_->SetStrideAlignment(stride);
+    bufferQueue_->SetStrideAlignment(strideAlignment);
 }
 
 uint32_t BufferQueueProducer::GetStrideAlignment()
