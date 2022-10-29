@@ -99,7 +99,7 @@ private:
     struct BufferKey {
         int32_t key;
         uint64_t phyAddr;
-        bool operator< (const BufferKey &x) const
+        bool operator < (const BufferKey &x) const
         {
             return (key < x.key) || (key == x.key && phyAddr < x.phyAddr);
         }
