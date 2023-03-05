@@ -35,7 +35,7 @@ Surface的跨进程传输使用IPC传输句柄等控制结构（有拷贝），�
 
 ```
 # 通过gn编译,在out目录下对应产品的文件夹中生成libsurface.so
-hb build lite_surface
+hb build surface_lite
 ```
 
 ## 说明<a name="section1312121216216"></a>

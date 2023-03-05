@@ -35,7 +35,7 @@ A surface transfers data across processes through control structures such as Int
 
 ```
 # Generate the libsurface.so file in the out directory of the product folder through GN compilation.
-hb build lite_surface
+hb build surface_lite
 ```
 
 ## Description<a name="section1312121216216"></a>
