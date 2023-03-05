@@ -12,12 +12,12 @@
 import("//build/lite/config/component/lite_component.gni")
 import("//build/lite/ndk/ndk.gni")
 
-lite_component("lite_surface") {
+lite_component("surface_lite") {
   features = [ ":surface" ]
   public_deps = features
 }
 
-ndk_lib("lite_surface_ndk") {
+ndk_lib("surface_lite_ndk") {
   lib_extension = ".so"
   deps = [ ":surface" ]
   head_files = [ "interfaces/kits" ]
@@ -40,7 +40,7 @@ shared_library("surface") {
     "//drivers/peripheral/display/interfaces/include",
   ]
   public_configs = [ ":surface_public_config" ]
-  public_deps = [ "//foundation/graphic/utils:lite_graphic_utils" ]
+  public_deps = [ "//foundation/graphic/utils:graphic_utils_lite" ]
   deps = [
     "//drivers/peripheral/display/hal:hdi_display",
     "//foundation/communication/ipc/interfaces/innerkits/c/ipc:ipc_single",
