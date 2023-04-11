@@ -29,8 +29,8 @@
     },
     "build": {
       "sub_component": [ 
-        "//foundation/graphic/surface:lite_surface",
-        "//foundation/graphic/surface/test:lite_surface_test" ],
+        "//foundation/graphic/surface:surface_lite",
+        "//foundation/graphic/surface/test:surface_lite_test" ],
       "inner_kits": [],
       "test": []
     }
