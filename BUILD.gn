@@ -40,7 +40,7 @@ shared_library("surface") {
     "//drivers/peripheral/display/interfaces/include",
   ]
   public_configs = [ ":surface_public_config" ]
-  public_deps = [ "//foundation/graphic/utils:graphic_utils_lite" ]
+  public_deps = [ "//foundation/graphic/graphic_utils_lite:utils_lite" ]
   deps = [
     "//drivers/peripheral/display/hal:hdi_display",
     "//foundation/communication/ipc/interfaces/innerkits/c/ipc:ipc_single",
@@ -60,6 +60,6 @@ config("surface_public_config") {
   include_dirs = [
     "interfaces/innerkits",
     "interfaces/kits",
-    "//foundation/graphic/utils/interfaces/kits",
+    "//foundation/graphic/graphic_utils_lite/interfaces/kits",
   ]
 }

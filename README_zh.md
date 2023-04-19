@@ -21,7 +21,7 @@ Surface的跨进程传输使用IPC传输句柄等控制结构（有拷贝），�
 ## 目录<a name="section161941989596"></a>
 
 ```
-/foundation/graphic/surface
+/foundation/graphic/surface_lite
 ├── frameworks       # 框架代码
 ├── interfaces       # 接口
 │   ├── innerkits    # 模块间接口
@@ -57,16 +57,16 @@ hb build surface_lite
 
 ### 使用说明<a name="section129654513264"></a>
 
-可参考轻量图形[WMS组件](https://gitee.com/openharmony/graphic_wms/blob/master/README_zh.md)。
+可参考轻量图形[WMS组件](https://gitee.com/openharmony/window_window_manager_lite/blob/master/README_zh.md)。
 
 ## 相关仓<a name="section1371113476307"></a>
 
 [图形子系统](https://gitee.com/openharmony/docs/blob/master/zh-cn/readme/%E5%9B%BE%E5%BD%A2%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
 
-[graphic_wms](https://gitee.com/openharmony/graphic_wms/blob/master/README_zh.md)
+[window_window_manager_lite](https://gitee.com/openharmony/window_window_manager_lite/blob/master/README.md)
 
-**graphic_surface**
+**graphic_surface_lite**
 
-[graphic_ui](https://gitee.com/openharmony/graphic_ui/blob/master/README_zh.md)
+[arkui_ui_lite](https://gitee.com/openharmony/arkui_ui_lite/blob/master/README.md)
 
-[graphic_utils](https://gitee.com/openharmony/graphic_utils/blob/master/README_zh.md)
+[graphic_graphic_utils_lite](https://gitee.com/openharmony/graphic_graphic_utils_lite/blob/master/README.md)
