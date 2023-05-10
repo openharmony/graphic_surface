@@ -21,7 +21,7 @@ A surface transfers data across processes through control structures such as Int
 ## Directory Structure<a name="section161941989596"></a>
 
 ```
-/foundation/graphic/surface
+/foundation/graphic/surface_lite
 ├── frameworks       # Framework code
 ├── interfaces       # APIs
 │   ├── innerkits    # APIs between modules
@@ -57,16 +57,16 @@ The consumer obtains the buffer from the dirty queue, synthesizes graphics data,
 
 ### Usage<a name="section129654513264"></a>
 
-For details, see lite  [WMS](https://gitee.com/openharmony/graphic_wms/blob/master/README.md).
+For details, see lite  [WMS](https://gitee.com/openharmony/window_window_manager_lite/blob/master/README.md).
 
 ## Repositories Involved<a name="section1371113476307"></a>
 
 [Graphic subsystem](https://gitee.com/openharmony/docs/blob/master/en/readme/graphics.md)
 
-[graphic_wms](https://gitee.com/openharmony/graphic_wms/blob/master/README.md)
+[window_window_manager_lite](https://gitee.com/openharmony/window_window_manager_lite/blob/master/README.md)
 
-**graphic_surface**
+**graphic_surface_lite**
 
-[graphic_ui](https://gitee.com/openharmony/graphic_ui/blob/master/README.md)
+[arkui_ui_lite](https://gitee.com/openharmony/arkui_ui_lite/blob/master/README.md)
 
-[graphic_utils](https://gitee.com/openharmony/graphic_utils/blob/master/README.md)
+[graphic_graphic_utils_lite](https://gitee.com/openharmony/graphic_graphic_utils_lite/blob/master/README.md)
